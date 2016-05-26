@@ -14,8 +14,8 @@ import com.microsoft.pct.smartconversationalclient.luis.*;
 public class MainActivity extends AppCompatActivity {
 
     static final String LOG_TAG = "MainActivity";
-    static final String LUIS_APP_ID = "30ccc150-059e-40ca-b27b-aa436d565160";
-    static final String LUIS_SUBSCRIPTION_ID = "e543bb68d5304d54ba4bb7a384862af7";
+    static final String LUIS_APP_ID = "";
+    static final String LUIS_SUBSCRIPTION_ID = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
