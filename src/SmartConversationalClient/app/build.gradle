@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.3"
 
     defaultConfig {
-        applicationId "partnercatalyst.smartconversationalclient"
+        applicationId "com.microsoft.pct.smartconversationalclient"
         minSdkVersion 22
         targetSdkVersion 23
         versionCode 1

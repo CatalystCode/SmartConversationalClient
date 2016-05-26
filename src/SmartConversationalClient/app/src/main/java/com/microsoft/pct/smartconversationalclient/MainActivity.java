@@ -1,4 +1,4 @@
-package partnercatalyst.smartconversationalclient;
+package com.microsoft.pct.smartconversationalclient;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;

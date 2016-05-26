@@ -1,4 +1,4 @@
-package partnercatalyst.smartconversationalclient;
+package com.microsoft.pct.smartconversationalclient;
 
 import org.junit.Test;
 
