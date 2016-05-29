@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.*;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -24,12 +23,10 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     static final String LUIS_APP_ID = "";
     static final String LUIS_SUBSCRIPTION_ID = "";
 
-
-    private SpeechRecognizer sr;
+    private SpeechRecognizer _sr;
 
     //speech recognizer offline partial global
-    private String oResult;
-
+    private String _oResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,8 +34,8 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         setContentView(R.layout.activity_main);
 
         //init speech to text google recognizer
-        sr = SpeechRecognizer.createSpeechRecognizer(this);
-        sr.setRecognitionListener(this);
+        _sr = SpeechRecognizer.createSpeechRecognizer(this);
+        _sr.setRecognitionListener(this);
     }
 
     private void queryLuisAndShowResult(final String query) {
@@ -78,16 +75,13 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     }
 
     void voiceQuery(View view) {
-
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,true);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
-        sr.startListening(intent);
-
+        _sr.startListening(intent);
     }
-
 
     //Google SpeechRecognizer Overrides
 
@@ -96,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
 
     @Override
     public void onBeginningOfSpeech() {
-        oResult = null;
+        _oResult = null;
     }
 
     @Override
@@ -115,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     public void onError(int error) {
         //handle google offline bug
         if (error ==7){
-            queryLuisAndShowResult(oResult);
+            queryLuisAndShowResult(_oResult);
         }
     }
 
@@ -124,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         //handle offline unstable state
         ArrayList<String> data = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         ArrayList<String> unstableData = partialResults.getStringArrayList("android.speech.extra.UNSTABLE_TEXT");
-        oResult = data.get(0) + unstableData.get(0);
+        _oResult = data.get(0) + unstableData.get(0);
     }
 
     public void onResults(Bundle results) {
@@ -137,8 +131,4 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
 
         queryLuisAndShowResult(query);
     }
-
-
-
-
 }
