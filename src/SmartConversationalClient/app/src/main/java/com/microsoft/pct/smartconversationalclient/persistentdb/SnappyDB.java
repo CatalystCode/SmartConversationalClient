@@ -1,7 +1,7 @@
 package com.microsoft.pct.smartconversationalclient.persistentdb;
 
 import android.content.Context;
-
+import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 import com.snappydb.DB;
 import com.snappydb.DBFactory;
 import com.snappydb.SnappydbException;
@@ -24,7 +24,7 @@ public class SnappyDB implements IPersistentDB {
     }
 
     @Override
-    public void put(String key, Object value) {
+    public void put(String key, IQueryResult value) {
         try {
             _snappydb.put(key, value);
         } catch (SnappydbException e) {
@@ -33,9 +33,9 @@ public class SnappyDB implements IPersistentDB {
     }
 
     @Override
-    public Object get(String key) {
+    public IQueryResult get(String key) {
         try {
-            return _snappydb.get(key);
+            return  _snappydb.getObject(key,IQueryResult.class);
         } catch (SnappydbException e) {
             e.printStackTrace();
             return null;
