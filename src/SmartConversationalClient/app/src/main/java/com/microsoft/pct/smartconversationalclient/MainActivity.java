@@ -28,13 +28,13 @@ public class MainActivity extends AppCompatActivity {
         EditText control = (EditText)findViewById(R.id.editText);
         final String queryText =  control.getText().toString();
 
-        new AsyncTask<String, Void, LUISResult>() {
+        new AsyncTask<String, Void, LUISQueryResult>() {
             @Override
-            protected LUISResult doInBackground( final String ... params ) {
+            protected LUISQueryResult doInBackground(final String ... params ) {
                 String queryText = params[0];
                 LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(getApplicationContext()));
                 try {
-                    LUISResult result = client.queryLUIS(queryText);
+                    LUISQueryResult result = client.queryLUIS(queryText);
                     return result;
                 }
                 catch (Throwable e) {
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            protected void onPostExecute( final LUISResult result ) {
+            protected void onPostExecute( final LUISQueryResult result ) {
                 TextView control = (TextView) findViewById(R.id.resultText);
                 if (result == null) {
                     control.setText("Error occured during request to LUIS");
