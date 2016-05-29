@@ -20,8 +20,8 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity  {
 
     static final String LOG_TAG = "MainActivity";
-    static final String LUIS_APP_ID = "";
-    static final String LUIS_SUBSCRIPTION_ID = "";
+    final String LUIS_APP_ID = this.getString(R.string.luisAppID);
+    final String LUIS_SUBSCRIPTION_ID = this.getString(R.string.luisSubscriptionID);;
 
     private SpeechRecognizer _speechRecognizer;
     private RecognitionListener _recognitionListener;
