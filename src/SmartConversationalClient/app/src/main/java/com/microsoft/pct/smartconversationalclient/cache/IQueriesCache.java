@@ -24,12 +24,12 @@ public interface IQueriesCache {
     /*
     Adds the query and query result to the cache
      */
-    void put(String query, IQueryResult queryResult);
+    void put(String query, IQueryResult queryResult) throws Exception;
 
     /*
     Clear old cache items with that exists longer than the specified time
      */
-    void clearOldCacheItems(long cacheItemTTLMilliseconds);
+    void clearOldCacheItems(long cacheItemTTLMilliseconds) throws Exception;
 
     /*
     Returns the number of items in the cache

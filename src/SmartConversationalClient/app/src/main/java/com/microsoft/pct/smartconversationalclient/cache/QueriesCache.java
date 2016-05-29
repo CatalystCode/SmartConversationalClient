@@ -2,7 +2,9 @@ package com.microsoft.pct.smartconversationalclient.cache;
 
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 
+import java.lang.reflect.Array;
 import java.util.Map;
+import android.support.v4.util.ArrayMap;
 
 /**
  * Created by nadavbar on 5/29/16.
@@ -13,10 +15,10 @@ public class QueriesCache implements IQueriesCache {
 
     private int _maximumCacheSize;
 
-    
+    private Map<String, IQueryResult> _exactQueriesCache;
 
     public QueriesCache() {
-        _maximumCacheSize = DEFAULT_MAXIMUM_CACHE_SIZE;
+        this(DEFAULT_MAXIMUM_CACHE_SIZE);
     }
 
     public QueriesCache(int maximumCacheSize) {
@@ -25,35 +27,63 @@ public class QueriesCache implements IQueriesCache {
         }
 
         _maximumCacheSize = maximumCacheSize;
+        _exactQueriesCache = new ArrayMap<String, IQueryResult>();
     }
 
     @Override
-    public IQueryResult matchExact(String query) {
-        return null;
+    public synchronized IQueryResult matchExact(String query) {
+        if (query == null || query.isEmpty()) {
+            throw new IllegalArgumentException("query parameter is null or an emptu string");
+        }
+
+        String transormedKey = preProcessKey(query);
+        return _exactQueriesCache.get(transormedKey);
     }
 
     @Override
-    public QueriesCacheMatch[] match(String query) {
-        return new QueriesCacheMatch[0];
+    public synchronized QueriesCacheMatch[] match(String query) {
+        IQueryResult result = matchExact(query);
+
+        if (result == null) {
+            return null;
+        }
+
+        return new QueriesCacheMatch[] {
+            new QueriesCacheMatch(result, 1.00)
+        };
     }
 
     @Override
-    public void put(String query, IQueryResult queryResult) {
+    public synchronized void put (String query, IQueryResult queryResult) throws Exception {
+        if (getSize() >= _maximumCacheSize) {
+            // TODO: Reduce the size of the cache
+            throw new IllegalStateException("Cache reached its maximal size");
+        }
 
+        String transformedKey = preProcessKey(query);
+        _exactQueriesCache.put(transformedKey, queryResult);
     }
 
     @Override
-    public void clearOldCacheItems(long cacheItemTTLMilliseconds) {
-
+    public synchronized  void clearOldCacheItems(long cacheItemTTLMilliseconds) throws Exception {
+        // TODO: implement
+        throw new Exception("Not implemented");
     }
 
     @Override
-    public long getSize() {
-        return 0;
+    public synchronized long getSize() {
+        return _exactQueriesCache.size();
     }
 
     @Override
-    public Map<String, IQueryResult> getCacheItems() {
-        return null;
+    public synchronized Map<String, IQueryResult> getCacheItems() {
+        ArrayMap<String, IQueryResult> duplicate = new ArrayMap<String, IQueryResult>();
+        duplicate.putAll(_exactQueriesCache);
+        return duplicate;
+    }
+
+    private static String preProcessKey(String key) {
+        String transformed = key.toLowerCase();
+        return transformed;
     }
 }
