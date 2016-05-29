@@ -1,6 +1,5 @@
 package com.microsoft.pct.smartconversationalclient;
 
-import android.content.Context;
 import android.content.Intent;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -24,8 +23,8 @@ public class MainActivity extends AppCompatActivity  {
     static final String LUIS_APP_ID = "";
     static final String LUIS_SUBSCRIPTION_ID = "";
 
-    private SpeechRecognizer _sr;
-    private RecognitionListener _rl;
+    private SpeechRecognizer _speechRecognizer;
+    private RecognitionListener _recognitionListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,16 +32,16 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
 
         //init speech to text google recognizer
-        _rl = new RecognitionListener() {
+        _recognitionListener = new RecognitionListener() {
             //speech recognizer offline partial global
-            private String _oResult;
+            private String _offlineResult;
 
             @Override
             public void onReadyForSpeech(Bundle params) {}
 
             @Override
             public void onBeginningOfSpeech() {
-                _oResult = null;
+                _offlineResult = null;
             }
 
             @Override
@@ -59,18 +58,18 @@ public class MainActivity extends AppCompatActivity  {
 
             @Override
             public void onError(int error) {
-                //handle google offline bug
-                if (error ==7){
-                    queryLuisAndShowResult(_oResult);
+                //handle google offline bug see http://stackoverflow.com/questions/30654191/speechrecognizer-offline-error-no-match
+                if (error == 7){
+                    queryLuisAndShowResult(_offlineResult);
                 }
             }
 
             @Override
             public void onPartialResults(Bundle partialResults) {
-                //handle offline unstable state
+                //handle offline unstable state based on http://stackoverflow.com/questions/30654191/speechrecognizer-offline-error-no-match
                 ArrayList<String> data = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 ArrayList<String> unstableData = partialResults.getStringArrayList("android.speech.extra.UNSTABLE_TEXT");
-                _oResult = data.get(0) + unstableData.get(0);
+                _offlineResult = data.get(0) + unstableData.get(0);
             }
 
             public void onResults(Bundle results) {
@@ -82,8 +81,9 @@ public class MainActivity extends AppCompatActivity  {
                 queryLuisAndShowResult(query);
             }
         };
-        _sr = SpeechRecognizer.createSpeechRecognizer(this);
-        _sr.setRecognitionListener(_rl);
+
+        _speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        _speechRecognizer.setRecognitionListener(_recognitionListener);
     }
 
     private void queryLuisAndShowResult(final String query) {
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity  {
     public void textQuery(View view) {
         // get text from text field:
         EditText control = (EditText)findViewById(R.id.editText);
-        String queryText =  control.getText().toString();
+        String queryText = control.getText().toString();
         queryLuisAndShowResult(queryText);
     }
 
@@ -126,9 +126,8 @@ public class MainActivity extends AppCompatActivity  {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS,true);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        intent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,"voice.recognition.test");
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
-        _sr.startListening(intent);
+        _speechRecognizer.startListening(intent);
     }
 
 
