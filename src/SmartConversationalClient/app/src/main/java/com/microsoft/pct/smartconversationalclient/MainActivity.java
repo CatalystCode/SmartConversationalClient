@@ -129,6 +129,5 @@ public class MainActivity extends AppCompatActivity  {
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
         _speechRecognizer.startListening(intent);
     }
-
-
+    
 }
