@@ -1,13 +1,6 @@
 package com.microsoft.pct.smartconversationalclient.luis;
 
-import android.support.v4.util.ArrayMap;
-import android.widget.TableRow;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.*;
@@ -16,8 +9,6 @@ import com.android.volley.*;
 import com.android.volley.toolbox.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import org.json.JSONObject;
 
 /**
  * Created by nadavbar on 5/23/16.
@@ -37,7 +28,7 @@ public class LUISClient {
         _queue = queue;
     }
 
-    public LUISResult queryLUIS(String query) throws Throwable {
+    public LUISQueryResult queryLUIS(String query) throws Throwable {
         String jsonResult = queryLUISEndPoint(query);
         return parseLUISResult(jsonResult);
     }
@@ -88,10 +79,10 @@ public class LUISClient {
         return responseString[0];
     }
 
-    private LUISResult parseLUISResult(String result) throws Exception {
+    private LUISQueryResult parseLUISResult(String result) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        LUISResult value = mapper.readValue(result, LUISResult.class);
+        LUISQueryResult value = mapper.readValue(result, LUISQueryResult.class);
 
         value.sortByIntent();
         return value;

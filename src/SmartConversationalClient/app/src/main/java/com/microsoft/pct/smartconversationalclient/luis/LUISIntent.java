@@ -18,7 +18,7 @@ public class LUISIntent {
     @com.fasterxml.jackson.annotation.JsonProperty("intent")
     private String _intent;
 
-     public void setIntent(String intent) {
+    public void setIntent(String intent) {
         this._intent = intent;
     }
 
@@ -29,7 +29,7 @@ public class LUISIntent {
     @com.fasterxml.jackson.annotation.JsonProperty("score")
     private Double _score;
 
-     public void setScore(Double score) {
+    public void setScore(Double score) {
         this._score = score;
     }
 
