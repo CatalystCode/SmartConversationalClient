@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.*;
+import com.microsoft.pct.smartconversationalclient.cache.QueriesCache;
+import com.microsoft.pct.smartconversationalclient.cache.QueriesCacheMatch;
 import com.microsoft.pct.smartconversationalclient.luis.*;
 
 import java.util.ArrayList;
@@ -20,16 +22,24 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity  {
 
     static final String LOG_TAG = "MainActivity";
-    final String LUIS_APP_ID = this.getString(R.string.luisAppID);
-    final String LUIS_SUBSCRIPTION_ID = this.getString(R.string.luisSubscriptionID);;
+    static final double QUERIES_CACHE_MATCH_CONFIDENCE_THRESHOLD = 0.9;
+
+    String LUIS_APP_ID;
+    String LUIS_SUBSCRIPTION_ID;
 
     private SpeechRecognizer _speechRecognizer;
     private RecognitionListener _recognitionListener;
+    private QueriesCache _queriesCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        _queriesCache = new QueriesCache();
+
+        LUIS_APP_ID = this.getString(R.string.luisAppID);
+        LUIS_SUBSCRIPTION_ID = this.getString(R.string.luisSubscriptionID);
 
         //init speech to text google recognizer
         _recognitionListener = new RecognitionListener() {
@@ -87,13 +97,27 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void queryLuisAndShowResult(final String query) {
-        new AsyncTask<String, Void, LUISResult>() {
+        new AsyncTask<String, Void, LUISQueryResult>() {
             @Override
-            protected LUISResult doInBackground( final String ... params ) {
+            protected LUISQueryResult doInBackground( final String ... params ) {
                 String queryText = params[0];
+
+                // try to query the cache first:
+                QueriesCacheMatch[] matchResults = _queriesCache.match(queryText);
+
+                if (matchResults != null && matchResults.length > 0) {
+                    if (matchResults[0].getMatchConfidence() > QUERIES_CACHE_MATCH_CONFIDENCE_THRESHOLD) {
+                        // TODO: Add support for general queries when available
+                        return (LUISQueryResult)matchResults[0].getQueryResult();
+                    }
+                }
+
                 LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(getApplicationContext()));
                 try {
-                    LUISResult result = client.queryLUIS(queryText);
+                    LUISQueryResult result = client.queryLUIS(queryText);
+                    // add it to the cache:
+                    _queriesCache.put(query, result);
+                    // TODO:
                     return result;
                 }
                 catch (Throwable e) {
@@ -103,7 +127,7 @@ public class MainActivity extends AppCompatActivity  {
             }
 
             @Override
-            protected void onPostExecute( final LUISResult result ) {
+            protected void onPostExecute( final LUISQueryResult result ) {
                 TextView control = (TextView) findViewById(R.id.resultText);
                 if (result == null) {
                     control.setText("Error occured during request to LUIS");
