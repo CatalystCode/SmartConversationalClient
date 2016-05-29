@@ -1,5 +1,6 @@
 package com.microsoft.pct.smartconversationalclient;
 
+import android.content.Context;
 import android.content.Intent;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -17,16 +18,14 @@ import com.microsoft.pct.smartconversationalclient.luis.*;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements RecognitionListener {
+public class MainActivity extends AppCompatActivity  {
 
     static final String LOG_TAG = "MainActivity";
     static final String LUIS_APP_ID = "";
     static final String LUIS_SUBSCRIPTION_ID = "";
 
     private SpeechRecognizer _sr;
-
-    //speech recognizer offline partial global
-    private String _oResult;
+    private RecognitionListener _rl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +33,57 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         setContentView(R.layout.activity_main);
 
         //init speech to text google recognizer
+        _rl = new RecognitionListener() {
+            //speech recognizer offline partial global
+            private String _oResult;
+
+            @Override
+            public void onReadyForSpeech(Bundle params) {}
+
+            @Override
+            public void onBeginningOfSpeech() {
+                _oResult = null;
+            }
+
+            @Override
+            public void onRmsChanged(float rmsdB) {}
+
+            @Override
+            public void onBufferReceived(byte[] buffer) {}
+
+            @Override
+            public void onEndOfSpeech() { }
+
+            @Override
+            public void onEvent(int eventType, Bundle params) {}
+
+            @Override
+            public void onError(int error) {
+                //handle google offline bug
+                if (error ==7){
+                    queryLuisAndShowResult(_oResult);
+                }
+            }
+
+            @Override
+            public void onPartialResults(Bundle partialResults) {
+                //handle offline unstable state
+                ArrayList<String> data = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                ArrayList<String> unstableData = partialResults.getStringArrayList("android.speech.extra.UNSTABLE_TEXT");
+                _oResult = data.get(0) + unstableData.get(0);
+            }
+
+            public void onResults(Bundle results) {
+                //extractIntent from closest recognized string
+                ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+                EditText control = (EditText)findViewById(R.id.editText);
+                String query = matches.get(0);
+                control.setText(query);
+                queryLuisAndShowResult(query);
+            }
+        };
         _sr = SpeechRecognizer.createSpeechRecognizer(this);
-        _sr.setRecognitionListener(this);
+        _sr.setRecognitionListener(_rl);
     }
 
     private void queryLuisAndShowResult(final String query) {
@@ -83,52 +131,5 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         _sr.startListening(intent);
     }
 
-    //Google SpeechRecognizer Overrides
 
-    @Override
-    public void onReadyForSpeech(Bundle params) {}
-
-    @Override
-    public void onBeginningOfSpeech() {
-        _oResult = null;
-    }
-
-    @Override
-    public void onRmsChanged(float rmsdB) {}
-
-    @Override
-    public void onBufferReceived(byte[] buffer) {}
-
-    @Override
-    public void onEndOfSpeech() { }
-
-    @Override
-    public void onEvent(int eventType, Bundle params) {}
-
-    @Override
-    public void onError(int error) {
-        //handle google offline bug
-        if (error ==7){
-            queryLuisAndShowResult(_oResult);
-        }
-    }
-
-    @Override
-    public void onPartialResults(Bundle partialResults) {
-        //handle offline unstable state
-        ArrayList<String> data = partialResults.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        ArrayList<String> unstableData = partialResults.getStringArrayList("android.speech.extra.UNSTABLE_TEXT");
-        _oResult = data.get(0) + unstableData.get(0);
-    }
-
-    public void onResults(Bundle results) {
-        //extractIntent from closest recognized string
-
-        ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
-        EditText control = (EditText)findViewById(R.id.editText);
-        String query = matches.get(0);
-        control.setText(query);
-
-        queryLuisAndShowResult(query);
-    }
 }
