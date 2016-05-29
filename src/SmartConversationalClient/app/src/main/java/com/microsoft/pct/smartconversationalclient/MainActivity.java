@@ -23,8 +23,9 @@ public class MainActivity extends AppCompatActivity  {
 
     static final String LOG_TAG = "MainActivity";
     static final double QUERIES_CACHE_MATCH_CONFIDENCE_THRESHOLD = 0.9;
-    static final String LUIS_APP_ID = "";
-    static final String LUIS_SUBSCRIPTION_ID = "";
+
+    String LUIS_APP_ID;
+    String LUIS_SUBSCRIPTION_ID;
 
     private SpeechRecognizer _speechRecognizer;
     private RecognitionListener _recognitionListener;
@@ -36,6 +37,9 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
 
         _queriesCache = new QueriesCache();
+
+        LUIS_APP_ID = this.getString(R.string.luisAppID);
+        LUIS_SUBSCRIPTION_ID = this.getString(R.string.luisSubscriptionID);
 
         //init speech to text google recognizer
         _recognitionListener = new RecognitionListener() {
@@ -111,6 +115,8 @@ public class MainActivity extends AppCompatActivity  {
                 LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(getApplicationContext()));
                 try {
                     LUISQueryResult result = client.queryLUIS(queryText);
+                    // add it to the cache:
+                    _queriesCache.put(query, result);
                     // TODO:
                     return result;
                 }
