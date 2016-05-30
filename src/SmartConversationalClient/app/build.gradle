@@ -10,6 +10,8 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+
     }
     buildTypes {
         release {
@@ -17,6 +19,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    testOptions { // <-- You need this http://stackoverflow.com/questions/28960898/getting-context-in-androidtestcase-or-instrumentationtestcase-in-android-studio
+        unitTests {
+            returnDefaultValues = true
+        }
+    }
+
 }
 
 dependencies {
@@ -31,4 +39,6 @@ dependencies {
     compile 'com.snappydb:snappydb-lib:0.5.2'
     compile 'com.esotericsoftware.kryo:kryo:2.24.0'
 
+    // Unit testing dependencies
+    testCompile 'junit:junit:4.12'
 }
