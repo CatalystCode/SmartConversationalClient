@@ -22,60 +22,35 @@ public class SnappyDB implements IPersistentDB {
     private Context _context;
     private ObjectMapper _mapper;
 
-    public  SnappyDB (Context context){
-        try {
-            _context = context;
-            _snappydb = DBFactory.open(_context);
-            _mapper = new ObjectMapper();
-        } catch (SnappydbException e) {
-            e.printStackTrace();
-        }
+    public  SnappyDB (Context context) throws SnappydbException {
+        _context = context;
+        _snappydb = DBFactory.open(_context);
+        _mapper = new ObjectMapper();
     }
 
     @Override
-    public void put(String key, IQueryResult value) {
-        try {
-            try {
-                _snappydb.put(key, _mapper.writeValueAsString(value));
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-        } catch (SnappydbException e) {
-            e.printStackTrace();
-        }
+    public void put(String key, IQueryResult value) throws JsonProcessingException, SnappydbException {
+        _snappydb.put(key, _mapper.writeValueAsString(value));
     }
 
     @Override
-    public IQueryResult get(String key) {
-        try {
-            try {
-                return  _mapper.readValue(_snappydb.get(key),IQueryResult.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        } catch (SnappydbException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public IQueryResult get(String key) throws SnappydbException, IOException {
+        return  _mapper.readValue(_snappydb.get(key),IQueryResult.class);
     }
 
     @Override
-    public void remove(String key) {
-        try {
-            _snappydb.del(key);
-        } catch (SnappydbException e) {
-            e.printStackTrace();
-        }
+    public void remove(String key) throws SnappydbException {
+        _snappydb.del(key);
     }
 
     @Override
-    public void clear() {
-        try {
-            _snappydb.destroy();
-            _snappydb = DBFactory.open(_context);
-        } catch (SnappydbException e) {
-            e.printStackTrace();
-        }
+    public void clear() throws SnappydbException {
+        _snappydb.destroy();
+        _snappydb = DBFactory.open(_context);
+    }
+
+    @Override
+    public int getSize() throws Exception {
+        return _snappydb.countKeys("");
     }
 }
