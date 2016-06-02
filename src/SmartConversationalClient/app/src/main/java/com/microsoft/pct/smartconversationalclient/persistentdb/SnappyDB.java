@@ -20,72 +20,68 @@ import java.util.Iterator;
 
 public class SnappyDB implements IPersistentDB {
 
+    private static final String dbName = "PersistentDB";
     private DB _snappydb;
     private Context _context;
     private ObjectMapper _mapper;
     private int _size;
 
-    public  SnappyDB (Context context) throws Exception {
+    public SnappyDB (Context context){
         _context = context;
         _mapper = new ObjectMapper();
-        this.open();
+    }
+
+    @Override
+    public synchronized void open() throws Exception {
+        _snappydb = DBFactory.open(_context,dbName);
         _size=this.count();
     }
 
     @Override
-    public void open() throws Exception {
-        _snappydb = DBFactory.open(_context,"PersistentDB");
-    }
-
-    @Override
-    public void put(String key, IQueryResult value) throws JsonProcessingException, SnappydbException {
-        _snappydb.put(key, _mapper.writeValueAsString(value));
+    public synchronized void put(String key, IQueryResult value) throws JsonProcessingException, SnappydbException {
+        _snappydb.put(key,_mapper.writeValueAsString(value));
         _size+=1;
     }
 
     @Override
-    public IQueryResult getObject(String key, Class<? extends IQueryResult> objectType) throws SnappydbException, IOException {
+    public synchronized IQueryResult getObject(String key, Class<? extends IQueryResult> objectType) throws SnappydbException, IOException {
         String s =_snappydb.get(key);
-        return   _mapper.readValue(_snappydb.get(key),objectType);
-
+        return _mapper.readValue(_snappydb.get(key),objectType);
     }
 
     @Override
-    public void remove(String key) throws SnappydbException {
+    public synchronized void remove(String key) throws SnappydbException {
         _snappydb.del(key);
         _size-=1;
     }
 
     @Override
-    public void clear() throws SnappydbException {
+    public synchronized void clear() throws SnappydbException {
         _snappydb.destroy();
-        _snappydb = DBFactory.open(_context,"PersistentDB");
+        _snappydb = DBFactory.open(_context,dbName);
         _size =0;
     }
 
     @Override
-    public void close() throws Exception {
-      if( _snappydb.isOpen()){
+    public synchronized void close() throws Exception {
+        if(_snappydb.isOpen()){
             _snappydb.close();
         }
     }
 
     @Override
-    public int getSize() throws Exception {
-        return this.count();
+    public synchronized int getSize() throws Exception {
+        return _size;
     }
 
-    public int count() throws Exception {
+    private int count() throws Exception {
         int index =0;
         KeyIterator it = _snappydb.allKeysIterator();
-        while ( it.hasNext()) {
+        while (it.hasNext()) {
             it.next(1);
             index+=1;
         }
         it.close();
         return index;
     }
-
-
-
 }

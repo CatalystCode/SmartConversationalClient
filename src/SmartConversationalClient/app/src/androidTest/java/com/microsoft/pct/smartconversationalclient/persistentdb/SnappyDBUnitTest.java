@@ -16,18 +16,16 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         _snappyDB = new SnappyDB(getInstrumentation().getTargetContext());
+        _snappyDB.open();
     }
 
-    public void testFail() throws Exception {
-        assertTrue("fail",false);
+    @Override
+    protected void tearDown() throws Exception{
+        _snappyDB.clear();
     }
 
-    public void testTrue() throws Exception {
-        assertTrue("ran",true);
-    }
-
-    public void  testClear() throws Exception{
-        //ensure that there are items in the db populate
+    public void testClear() throws Exception{
+        //ensure that there are items in the db
         _snappyDB.put("Key",new QueryResultTest() );
         _snappyDB.put("Key1",new QueryResultTest());
         _snappyDB.put("Key2",new QueryResultTest());
@@ -36,13 +34,11 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
         _snappyDB.clear();
 
         //confirm
-        assertTrue( _snappyDB.getSize()==0);
+        assertTrue(_snappyDB.getSize()==0);
     }
 
     public  void testSize() throws  Exception{
-        _snappyDB.clear();
-
-        //populate
+        //ensure that there are items in the db
         _snappyDB.put("Key",new QueryResultTest() );
         _snappyDB.put("Key1",new QueryResultTest());
         _snappyDB.put("Key2",new QueryResultTest());
@@ -50,38 +46,38 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
         assertTrue(_snappyDB.getSize() == 3);
     }
 
-    public void testPutAndGet() throws Exception{
-        _snappyDB.clear();
-
+    public void testPutAndGet() throws Exception {
+        //put something in the db
         IQueryResult myIQueryResult = new QueryResultTest() ;
         _snappyDB.put("Key",myIQueryResult);
 
+        //retrieve the object from the db
         IQueryResult someResult = _snappyDB.getObject("Key",QueryResultTest.class);
         assertTrue(myIQueryResult.equals(someResult));
     }
 
     public void testUpdate() throws Exception{
-        _snappyDB.clear();
-
+        //add object to db
         _snappyDB.put("Key",new QueryResultTest());
-        IQueryResult oldResult =  _snappyDB.getObject("Key",QueryResultTest.class);
+        IQueryResult oldResult = _snappyDB.getObject("Key",QueryResultTest.class);
 
+        //update object in db
         _snappyDB.put("Key",new QueryResultTest("new query"));
         IQueryResult newResult = _snappyDB.getObject("Key",QueryResultTest.class);
 
+        //confirm update
         assertFalse(oldResult.equals(newResult));
+        assertTrue(newResult.getQuery().equals("new query"));
     }
 
     //test remove function
     public void testRemove() throws Exception{
         boolean keyNotFound= false;
 
-        _snappyDB.clear();
-
+        //add object to db
         _snappyDB.put("Key",new QueryResultTest());
-        IQueryResult result =  _snappyDB.getObject("Key",QueryResultTest.class);
-
-        IQueryResult getResult = _snappyDB.getObject("Key",QueryResultTest.class);
+        IQueryResult result = _snappyDB.getObject("Key",QueryResultTest.class);
+        assertNotNull(result);
 
         _snappyDB.remove("Key");
 
@@ -89,8 +85,7 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
             _snappyDB.getObject("Key",QueryResultTest.class);
         }
         catch (Exception e){
-            String keyNotFoundError = "Failed to get a String: NotFound: ";
-            if(e.getMessage().equals(keyNotFoundError)) {
+            if(e.getMessage().contains("NotFound")) {
                 keyNotFound = true;
             }
         }
@@ -98,9 +93,7 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
     }
 
     public void testOpen() throws Exception{
-        _snappyDB.clear();
-
-        //populate
+        //ensure that there are items in the db
         _snappyDB.put("Key",new QueryResultTest() );
         _snappyDB.put("Key1",new QueryResultTest());
         _snappyDB.put("Key2",new QueryResultTest());

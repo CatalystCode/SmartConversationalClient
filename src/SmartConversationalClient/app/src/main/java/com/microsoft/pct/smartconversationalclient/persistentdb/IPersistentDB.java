@@ -41,5 +41,4 @@ public interface IPersistentDB
     Returns Size of DB
      */
     public int getSize() throws Exception;
-
 }
