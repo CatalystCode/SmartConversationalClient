@@ -1,7 +1,7 @@
 package com.microsoft.pct.smartconversationalclient.common;
 
 /*
-A uery result interface to be implemented by the different types of query results
+A query result interface to be implemented by the different types of query results
  */
 public interface IQueryResult {
     /*

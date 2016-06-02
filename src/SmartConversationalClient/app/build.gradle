@@ -10,7 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+        testInstrumentationRunner 'android.test.InstrumentationTestRunner'
     }
     buildTypes {
         release {
@@ -18,17 +18,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    testOptions { // <-- You need this http://stackoverflow.com/questions/28960898/getting-context-in-androidtestcase-or-instrumentationtestcase-in-android-studio
-        unitTests {
-            returnDefaultValues = true
-        }
-    }
-
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile 'junit:junit:4.12'
+
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.fasterxml.jackson.core:jackson-core:2.2.2'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.2.2'
@@ -38,5 +32,6 @@ dependencies {
     compile 'com.esotericsoftware.kryo:kryo:2.24.0'
 
     // Unit testing dependencies
-    testCompile 'junit:junit:4.12'
+    compile 'junit:junit:4.12'
+
 }

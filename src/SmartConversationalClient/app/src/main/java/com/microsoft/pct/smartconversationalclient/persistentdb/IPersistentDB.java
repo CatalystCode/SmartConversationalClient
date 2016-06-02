@@ -15,7 +15,7 @@ public interface IPersistentDB
     /*
     Retrieves object from persistent db
     */
-    public IQueryResult get(String key) throws Exception;
+    public IQueryResult getObject(String key, Class<? extends IQueryResult> objectType) throws Exception;
 
     /*
     Removes object from persistent db
@@ -28,7 +28,18 @@ public interface IPersistentDB
     public void clear() throws Exception;
 
     /*
+    Opens the DB from local context
+    */
+    public void open() throws Exception;
+
+    /*
+    Closes the persistent db
+     */
+    public void close() throws Exception;
+
+    /*
     Returns Size of DB
      */
     public int getSize() throws Exception;
+
 }
