@@ -56,8 +56,8 @@ public class QueriesCache implements IQueriesCache {
     @Override
     public synchronized void put (String query, IQueryResult queryResult) throws Exception {
         if (getSize() >= _maximumCacheSize) {
-            // TODO: Reduce the size of the cache
-            throw new IllegalStateException("Cache reached its maximal size");
+            // TODO: Reduce the getSize of the cache
+            throw new IllegalStateException("Cache reached its maximal getSize");
         }
 
         String transformedKey = preProcessKey(query);
