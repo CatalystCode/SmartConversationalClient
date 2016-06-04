@@ -5,6 +5,10 @@ import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 /**
  * Created by abornst on 5/29/2016.
  */
+
+/*
+ Interface for a PersistentDB that will persist data after application is closed.
+ */
 public interface IPersistentDB
 {
     /*

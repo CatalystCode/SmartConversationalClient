@@ -11,7 +11,6 @@ import com.snappydb.KeyIterator;
 import com.snappydb.SnappydbException;
 
 import java.io.IOException;
-import java.util.Iterator;
 
 
 /**
@@ -20,20 +19,20 @@ import java.util.Iterator;
 
 public class SnappyDB implements IPersistentDB {
 
-    private static final String dbName = "PersistentDB";
+    private static final String DB_NAME = "PersistentDB";
     private DB _snappydb;
     private Context _context;
     private ObjectMapper _mapper;
     private int _size;
 
-    public SnappyDB (Context context){
+    public SnappyDB (Context context) {
         _context = context;
         _mapper = new ObjectMapper();
     }
 
     @Override
     public synchronized void open() throws Exception {
-        _snappydb = DBFactory.open(_context,dbName);
+        _snappydb = DBFactory.open(_context, DB_NAME);
         _size=this.count();
     }
 
@@ -58,13 +57,13 @@ public class SnappyDB implements IPersistentDB {
     @Override
     public synchronized void clear() throws SnappydbException {
         _snappydb.destroy();
-        _snappydb = DBFactory.open(_context,dbName);
-        _size =0;
+        _snappydb = DBFactory.open(_context, DB_NAME);
+        _size = 0;
     }
 
     @Override
     public synchronized void close() throws Exception {
-        if(_snappydb.isOpen()){
+        if(_snappydb.isOpen()) {
             _snappydb.close();
         }
     }
@@ -75,13 +74,15 @@ public class SnappyDB implements IPersistentDB {
     }
 
     private int count() throws Exception {
-        int index =0;
+        int index = 0;
         KeyIterator it = _snappydb.allKeysIterator();
         while (it.hasNext()) {
             it.next(1);
-            index+=1;
+            index += 1;
         }
+
         it.close();
         return index;
     }
+
 }
