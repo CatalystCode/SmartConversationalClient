@@ -1,5 +1,6 @@
 package com.microsoft.pct.smartconversationalclient.persistentdb;
 
+import android.content.Context;
 import android.test.InstrumentationTestCase;
 
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
@@ -11,11 +12,13 @@ import com.microsoft.pct.smartconversationalclient.common.MockQueryResult;
 public class SnappyDBUnitTest extends InstrumentationTestCase {
 
     private SnappyDB _snappyDB;
+    private Context _mContext;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        _snappyDB = new SnappyDB(getInstrumentation().getTargetContext());
+        _mContext = getInstrumentation().getTargetContext();
+        _snappyDB = new SnappyDB(_mContext);
         _snappyDB.open();
     }
 
