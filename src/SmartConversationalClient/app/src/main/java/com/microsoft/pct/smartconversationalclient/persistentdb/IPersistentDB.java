@@ -2,6 +2,8 @@ package com.microsoft.pct.smartconversationalclient.persistentdb;
 
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 
+import java.util.ArrayList;
+
 /**
  * Created by abornst on 5/29/2016.
  */
@@ -45,4 +47,10 @@ public interface IPersistentDB
     Returns Size of DB
      */
     public int getSize() throws Exception;
+
+    /*
+    Gets All Keys
+     */
+    public String[] getAllKeys() throws Exception;
+
 }

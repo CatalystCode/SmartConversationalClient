@@ -33,7 +33,7 @@ public class QueriesCache implements IQueriesCache {
     @Override
     public synchronized IQueryResult matchExact(String query) {
         if (query == null || query.isEmpty()) {
-            throw new IllegalArgumentException("query parameter is null or an emptu string");
+            throw new IllegalArgumentException("query parameter is null or an empty string");
         }
 
         String transormedKey = preProcessKey(query);
