@@ -21,6 +21,7 @@ public class PersistentQueriesCache implements IQueriesCache {
 
     private IPersistentDB _exactQueriesCache;
 
+    //The type of IQueryResult being stored in the cache needed for serialization purposes
     private Class<? extends IQueryResult> _objectType;
 
     public PersistentQueriesCache(Context context, Class<? extends IQueryResult> objectType) throws Exception {
@@ -100,4 +101,5 @@ public class PersistentQueriesCache implements IQueriesCache {
         String transformed = key.toLowerCase();
         return transformed;
     }
+
 }

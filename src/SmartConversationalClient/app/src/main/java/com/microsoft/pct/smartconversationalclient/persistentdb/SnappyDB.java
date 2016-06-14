@@ -33,13 +33,13 @@ public class SnappyDB implements IPersistentDB {
     @Override
     public synchronized void open() throws Exception {
         _snappydb = DBFactory.open(_context, DB_NAME);
-        _size=this.count();
+        _size = this.count();
     }
 
     @Override
     public synchronized void put(String key, IQueryResult value) throws JsonProcessingException, SnappydbException {
         _snappydb.put(key,_mapper.writeValueAsString(value));
-        _size+=1;
+        _size += 1;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class SnappyDB implements IPersistentDB {
     @Override
     public synchronized void remove(String key) throws SnappydbException {
         _snappydb.del(key);
-        _size-=1;
+        _size -= 1;
     }
 
     @Override

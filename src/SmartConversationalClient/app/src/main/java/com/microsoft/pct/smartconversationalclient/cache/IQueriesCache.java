@@ -42,4 +42,5 @@ public interface IQueriesCache {
     Gets a shallow copy of the cache items
      */
     Map<String, IQueryResult> getCacheItems() throws Exception;
+    
 }

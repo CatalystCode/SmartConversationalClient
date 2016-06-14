@@ -14,14 +14,11 @@ import com.microsoft.pct.smartconversationalclient.persistentdb.SnappyDB;
  */
 public class PersistentQueriesCacheUnitTest extends InstrumentationTestCase {
 
-
     String LUIS_APP_ID;
     String LUIS_SUBSCRIPTION_ID;
 
     private Context _mContext;
     private  PersistentQueriesCache _pqc;
-
-
 
     @Override
     protected void setUp() throws Exception {
@@ -29,10 +26,8 @@ public class PersistentQueriesCacheUnitTest extends InstrumentationTestCase {
         _mContext = getInstrumentation().getTargetContext();
         _pqc = new PersistentQueriesCache(_mContext, LUISQueryResult.class);
 
-
         LUIS_APP_ID = _mContext.getString(R.string.luisAppID);
         LUIS_SUBSCRIPTION_ID = _mContext.getString(R.string.luisSubscriptionID);
-
     }
 
     public void testPutandMatch() throws Throwable
@@ -45,8 +40,6 @@ public class PersistentQueriesCacheUnitTest extends InstrumentationTestCase {
         LUISQueryResult cached = (LUISQueryResult) _pqc.matchExact("Go to the Kitchen");
 
         assertEquals(result.getQuery(),cached.getQuery());
-
     }
-
 
 }

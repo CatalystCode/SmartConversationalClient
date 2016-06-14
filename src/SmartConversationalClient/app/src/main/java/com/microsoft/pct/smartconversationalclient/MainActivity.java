@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
 
         try {
-            _queriesCache = new PersistentQueriesCache(getApplicationContext(),LUISQueryResult.class);
+            _queriesCache = new PersistentQueriesCache(getApplicationContext(), LUISQueryResult.class);
         }
         catch (Exception e) {
             e.printStackTrace();
