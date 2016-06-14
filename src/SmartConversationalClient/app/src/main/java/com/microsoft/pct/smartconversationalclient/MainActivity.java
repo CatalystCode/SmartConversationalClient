@@ -1,5 +1,6 @@
 package com.microsoft.pct.smartconversationalclient;
 
+import android.app.Application;
 import android.content.Intent;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -13,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.*;
+import com.microsoft.pct.smartconversationalclient.cache.PersistentQueriesCache;
 import com.microsoft.pct.smartconversationalclient.cache.QueriesCache;
 import com.microsoft.pct.smartconversationalclient.cache.QueriesCacheMatch;
 import com.microsoft.pct.smartconversationalclient.luis.*;
@@ -29,14 +31,19 @@ public class MainActivity extends AppCompatActivity  {
 
     private SpeechRecognizer _speechRecognizer;
     private RecognitionListener _recognitionListener;
-    private QueriesCache _queriesCache;
+    private PersistentQueriesCache _queriesCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _queriesCache = new QueriesCache();
+        try {
+            _queriesCache = new PersistentQueriesCache(getApplicationContext(), LUISQueryResult.class);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
 
         LUIS_APP_ID = this.getString(R.string.luisAppID);
         LUIS_SUBSCRIPTION_ID = this.getString(R.string.luisSubscriptionID);
@@ -103,7 +110,12 @@ public class MainActivity extends AppCompatActivity  {
                 String queryText = params[0];
 
                 // try to query the cache first:
-                QueriesCacheMatch[] matchResults = _queriesCache.match(queryText);
+                QueriesCacheMatch[] matchResults = new QueriesCacheMatch[0];
+                try {
+                    matchResults = _queriesCache.match(queryText);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 if (matchResults != null && matchResults.length > 0) {
                     if (matchResults[0].getMatchConfidence() > QUERIES_CACHE_MATCH_CONFIDENCE_THRESHOLD) {

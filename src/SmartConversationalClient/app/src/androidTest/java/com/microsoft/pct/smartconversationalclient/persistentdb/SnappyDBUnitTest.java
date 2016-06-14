@@ -115,4 +115,23 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
         assertTrue(dbSizeBeforeClose == dbSizeAfterOpen);
     }
 
+    public  void testGetAllKeys() throws Exception{
+        //ensure that there are items in the db
+        _snappyDB.put("Key",new MockQueryResult() );
+        _snappyDB.put("Key1",new MockQueryResult());
+        _snappyDB.put("Key2",new MockQueryResult());
+
+        //get all keys
+        String[] keys = _snappyDB.getAllKeys();
+
+        //check length
+        assertTrue(keys.length == _snappyDB.getSize());
+
+        //check individual key values
+        assertTrue(keys[0].equals("Key"));
+        assertTrue(keys[1].equals("Key1"));
+        assertTrue(keys[2].equals("Key2"));
+
+    }
+
 }
