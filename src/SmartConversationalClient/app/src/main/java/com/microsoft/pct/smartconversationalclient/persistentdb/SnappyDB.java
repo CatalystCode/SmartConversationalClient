@@ -81,6 +81,13 @@ public class SnappyDB implements IPersistentDB {
         return keys;
     }
 
+    public String[] getNKeys(int n) throws Exception {
+        KeyIterator it = _snappydb.allKeysIterator();
+        String[] keys = it.next(n);
+        it.close();
+        return keys;
+    }
+
     private int count() throws Exception {
         int index = 0;
         KeyIterator it = _snappydb.allKeysIterator();

@@ -127,9 +127,9 @@ public class MainActivity extends AppCompatActivity  {
                 LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(getApplicationContext()));
                 try {
                     LUISQueryResult result = client.queryLUIS(queryText);
-                    // add it to the cache:
+                    // add it to the cache
+                    // TODO make this call async
                     _queriesCache.put(query, result);
-                    // TODO:
                     return result;
                 }
                 catch (Throwable e) {
