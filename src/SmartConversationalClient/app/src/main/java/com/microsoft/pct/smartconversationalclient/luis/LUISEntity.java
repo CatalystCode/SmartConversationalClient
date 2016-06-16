@@ -5,20 +5,20 @@ package com.microsoft.pct.smartconversationalclient.luis;
 
 public class LUISEntity {
     @com.fasterxml.jackson.annotation.JsonProperty("endIndex")
-    private Integer _endindex;
+    private Integer _endIndex;
 
-    public void setEndindex(Integer endindex) {
-        this._endindex = endindex;
+    public void setEndIndex(Integer endIndex) {
+        this._endIndex = endIndex;
     }
 
-    public Integer getEndindex() {
-        return _endindex;
+    public Integer getEndIndex() {
+        return _endIndex;
     }
 
     @com.fasterxml.jackson.annotation.JsonProperty("type")
     private String _type;
 
-     public void setType(String type) {
+    public void setType(String type) {
         this._type = type;
     }
 
@@ -27,20 +27,20 @@ public class LUISEntity {
     }
 
     @com.fasterxml.jackson.annotation.JsonProperty("startIndex")
-    private Integer _startindex;
+    private Integer _startIndex;
 
-     public void setStartindex(Integer startindex) {
-        this._startindex = startindex;
+    public void setStartIndex(Integer startIndex) {
+        this._startIndex = startIndex;
     }
 
-    public Integer getStartindex() {
-        return _startindex;
+    public Integer getStartIndex() {
+        return _startIndex;
     }
 
     @com.fasterxml.jackson.annotation.JsonProperty("score")
     private Double _score;
 
-     public void setScore(Double score) {
+    public void setScore(Double score) {
         this._score = score;
     }
 
@@ -51,7 +51,7 @@ public class LUISEntity {
     @com.fasterxml.jackson.annotation.JsonProperty("entity")
     private String _entity;
 
-     public void setEntity(String entity) {
+    public void setEntity(String entity) {
         this._entity = entity;
     }
 
