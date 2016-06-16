@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.*;
 import com.microsoft.pct.smartconversationalclient.cache.PersistentQueriesCache;
+import com.microsoft.pct.smartconversationalclient.cache.PersistentSyncQueriesCache;
 import com.microsoft.pct.smartconversationalclient.cache.QueriesCache;
 import com.microsoft.pct.smartconversationalclient.cache.QueriesCacheMatch;
 import com.microsoft.pct.smartconversationalclient.luis.*;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity  {
 
     private SpeechRecognizer _speechRecognizer;
     private RecognitionListener _recognitionListener;
-    private PersistentQueriesCache _queriesCache;
+    private PersistentSyncQueriesCache _queriesCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +40,7 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
 
         try {
-            _queriesCache = new PersistentQueriesCache(getApplicationContext(), LUISQueryResult.class);
+            _queriesCache = new PersistentSyncQueriesCache(getApplicationContext(), LUISQueryResult.class);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -103,6 +104,16 @@ public class MainActivity extends AppCompatActivity  {
         _speechRecognizer.setRecognitionListener(_recognitionListener);
     }
 
+    //On Stop doesnt always get called find a better event or method of syncing db
+    @Override
+    protected void onStop(){
+        try {
+            _queriesCache.syncMemoryWithDB();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        super.onStop();
+    }
     private void queryLuisAndShowResult(final String query) {
         new AsyncTask<String, Void, LUISQueryResult>() {
             @Override

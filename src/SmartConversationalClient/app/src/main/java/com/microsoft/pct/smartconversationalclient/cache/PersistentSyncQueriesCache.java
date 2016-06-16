@@ -114,7 +114,7 @@ public class PersistentSyncQueriesCache implements IQueriesCache {
     Loads first maximumCacheSize keys and values from disk into memory
     ToDo Provide Weighted Index for retrieving values
     */
-    private void loadDBIntoMemory() throws Exception {
+    public void loadDBIntoMemory() throws Exception {
         String[] keys =  _exactQueriesDB.getNKeys(_maximumCacheSize);
         for (String key : keys) {
             _exactQueriesCache.put(key,_exactQueriesDB.getObject(key,_objectType));
@@ -124,7 +124,7 @@ public class PersistentSyncQueriesCache implements IQueriesCache {
     /*
     Dumps in memory cache back into db on disk
     */
-    private void syncMemoryWithDB() throws Exception {
+    public void syncMemoryWithDB() throws Exception {
         for (String key : _exactQueriesCache.keySet()){
             _exactQueriesDB.put(key, _exactQueriesCache.get(key));
         }
