@@ -22,7 +22,7 @@ public class SmartLuisQueriesCache implements IQueriesCache {
     private static final int DEFAULT_MAXIMUM_CACHE_SIZE = 1000;
 
     //A list of all possible entites (TBD read from external source)
-    private static final String[] ENTITES_LIST = {"Kitchen","Bathroom","Living Room","Bed Room","Den"};
+    private static final String[] ENTITES_LIST = {"kitchen","bathroom","living room","bedroom","den"};
 
     private int _maximumCacheSize;
 
@@ -46,29 +46,34 @@ public class SmartLuisQueriesCache implements IQueriesCache {
 
     @Override
     public IQueryResult matchExact(String query) throws Exception {
+
         LUISQueryResult luisQueryResult = new LUISQueryResult();
         ArrayList<LUISEntity> extractedEntites = new ArrayList<LUISEntity>();
-        //itterate through the ruleKeys
+        //iterate through the ruleKeys
         for (String rule : _exactQueriesCache.getAllKeys()){
             Pattern p = Pattern.compile(rule);
-            Matcher m = p.matcher(query);
+            Matcher m = p.matcher(query.toLowerCase());
+            int groupCount = m.groupCount();
+
             //if a the query matches a known rule
             if (m.find()){
                 //populate the LuisQueryResult with known entites from the query
-                for (int groupIndex = 0; groupIndex < m.groupCount(); groupIndex++){
+                for (int groupIndex = 1; groupIndex <= m.groupCount(); groupIndex++){
                     for (String entity : ENTITES_LIST){
                         if(m.group(groupIndex).contains(entity)){
                             LUISEntity extractedEntity = new LUISEntity();
                             extractedEntity.setEntity(entity);
                             extractedEntity.setScore(1.0);
                             extractedEntites.add(extractedEntity);
+                            break;
                         }
                     }
                 }
+
                 //configure and return extracted query result
                 luisQueryResult.setQuery(query);
                 luisQueryResult.setIntents(((LUISQueryResult) _exactQueriesCache.getObject(rule,LUISQueryResult.class)).getIntents());
-                luisQueryResult.setEntities((LUISEntity[]) extractedEntites.toArray());
+                luisQueryResult.setEntities(extractedEntites.toArray(new LUISEntity[extractedEntites.size()]));
                 return luisQueryResult;
             }
         }
@@ -90,7 +95,6 @@ public class SmartLuisQueriesCache implements IQueriesCache {
 
         String ruleKey = luisQRToRuleKey((LUISQueryResult)queryResult);
         _exactQueriesCache.put(ruleKey, queryResult);
-
     }
 
     @Override
@@ -120,13 +124,11 @@ public class SmartLuisQueriesCache implements IQueriesCache {
      Takes a LUISQueryResult and returns a key rule with comprised of the query string with entity occurrences replaced with .*
     */
     public String luisQRToRuleKey(LUISQueryResult luisQueryResult){
-        String ruleKey = luisQueryResult.getQuery();
-
+        String ruleKey = luisQueryResult.getQuery().toLowerCase();
         for (LUISEntity entity : luisQueryResult.getEntities()) {
-            String entityValue = entity.getEntity();
-            ruleKey = ruleKey.replace(entityValue, ".*");
+            String entityValue = entity.getEntity().toLowerCase();
+            ruleKey = ruleKey.replaceFirst(entityValue, "(.*)");
         }
-
-        return ruleKey.toLowerCase();
+        return ruleKey;
     }
 }
