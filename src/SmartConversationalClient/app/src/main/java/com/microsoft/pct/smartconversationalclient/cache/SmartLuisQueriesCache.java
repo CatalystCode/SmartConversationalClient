@@ -28,7 +28,6 @@ public class SmartLuisQueriesCache implements IQueriesCache {
 
     private IPersistentDB _exactQueriesCache;
 
-
     public SmartLuisQueriesCache(Context context) throws Exception {
         this(DEFAULT_MAXIMUM_CACHE_SIZE, context);
     }
@@ -130,5 +129,10 @@ public class SmartLuisQueriesCache implements IQueriesCache {
             ruleKey = ruleKey.replaceFirst(entityValue, "(.*)");
         }
         return ruleKey;
+    }
+
+    /*clears cache*/
+    public void clear() throws Exception {
+        _exactQueriesCache.clear();
     }
 }
