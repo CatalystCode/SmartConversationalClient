@@ -28,7 +28,7 @@ public class SmartLuisQueriesCacheUnitTest extends InstrumentationTestCase {
         LUIS_APP_ID = _mContext.getString(R.string.luisAppID);
         LUIS_SUBSCRIPTION_ID = _mContext.getString(R.string.luisSubscriptionID);
     }
-    
+
     @Override
     protected void tearDown() throws Exception{
         _slqc.clear();
