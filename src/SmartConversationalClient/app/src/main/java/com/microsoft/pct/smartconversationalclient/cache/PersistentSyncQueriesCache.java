@@ -129,4 +129,10 @@ public class PersistentSyncQueriesCache implements IQueriesCache {
             _exactQueriesDB.put(key, _exactQueriesCache.get(key));
         }
     }
+
+    /*Clears in memory and disk database*/
+    public void clear() throws Exception {
+        _exactQueriesCache.clear();
+        _exactQueriesDB.clear();
+    }
 }
