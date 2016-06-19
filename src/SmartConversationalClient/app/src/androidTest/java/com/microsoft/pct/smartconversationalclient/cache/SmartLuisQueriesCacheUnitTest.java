@@ -16,60 +16,66 @@ public class SmartLuisQueriesCacheUnitTest extends InstrumentationTestCase {
     String LUIS_APP_ID;
     String LUIS_SUBSCRIPTION_ID;
 
-    private Context _mContext;
-    private SmartLuisQueriesCache _slqc;
+    private Context _context;
+    private SmartLuisQueriesCache _smartCache;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        _mContext = getInstrumentation().getTargetContext();
-        _slqc = new SmartLuisQueriesCache(_mContext);
+        _context = getInstrumentation().getTargetContext();
+        _smartCache = new SmartLuisQueriesCache(_context);
+        _smartCache.init();
 
-        LUIS_APP_ID = _mContext.getString(R.string.luisAppID);
-        LUIS_SUBSCRIPTION_ID = _mContext.getString(R.string.luisSubscriptionID);
+        LUIS_APP_ID = _context.getString(R.string.luisAppID);
+        LUIS_SUBSCRIPTION_ID = _context.getString(R.string.luisSubscriptionID);
     }
 
     @Override
     protected void tearDown() throws Exception{
-        _slqc.clear();
+        _smartCache.clear();
     }
 
-    public void testLuisQuerytoRuleKey() throws Throwable {
-        LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(_mContext));
+    public void testLuisQueryToRuleKey() throws Throwable {
+        LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(_context));
         LUISQueryResult result = client.queryLUIS("Go to the Kitchen");
-        String ruleKey = _slqc.luisQRToRuleKey(result);
-        assertEquals(ruleKey, "go to the .*");
+        String ruleKey = _smartCache.luisQRToRuleKey(result);
+        assertEquals(ruleKey, "go to the (.*)");
     }
 
-    public void testPutandMatch() throws Throwable
+    public void testPutAndMatch() throws Throwable
     {
-        LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(_mContext));
+        LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(_context));
         LUISQueryResult result = client.queryLUIS("Go to the Kitchen");
 
-        _slqc.put(result.getQuery(), result);
+        _smartCache.put(result.getQuery(), result);
 
-        LUISQueryResult cached = (LUISQueryResult) _slqc.matchExact("Go to the Kitchen");
+        LUISQueryResult cached = (LUISQueryResult) _smartCache.matchExact("Go to the Kitchen");
 
         assertEquals(result.getQuery(),cached.getQuery());
     }
 
     public void testMatchGeneralQuery() throws Throwable {
-        LUISQueryResult mockQueryResult = new LUISQueryResult();
-        mockQueryResult.setQuery("Go to the den");
+        LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(_context));
+        LUISQueryResult result = client.queryLUIS("Go to the Kitchen");
+        _smartCache.put(result.getQuery(), result);
 
-        LUISQueryResult generalizedInCache = (LUISQueryResult) _slqc.matchExact("Go to the den");
+        LUISQueryResult generalizedInCache = (LUISQueryResult) _smartCache.matchExact("Go to the den");
 
-        assertEquals(mockQueryResult.getQuery(),generalizedInCache.getQuery());
+        assertEquals(generalizedInCache.getQuery(), "Go to the den");
         assertEquals(generalizedInCache.getIntents()[0].getIntent(), "Go to");
         assertEquals(generalizedInCache.getEntities()[0].getEntity(), "den");
     }
 
     public void testUnknownIntent() throws Throwable{
-        assertNull(_slqc.matchExact("Pick up the kitchen"));
+        assertNull(_smartCache.matchExact("Pick up the kitchen"));
     }
 
-    public void testNoKnownEntites() throws Throwable{
-        LUISQueryResult generalizedInCache = (LUISQueryResult) _slqc.matchExact("Go to the basement");
+    public void testNoKnownEntities() throws Throwable{
+        LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(_context));
+        LUISQueryResult result = client.queryLUIS("Go to the Kitchen");
+        _smartCache.put(result.getQuery(), result);
+
+        LUISQueryResult generalizedInCache = (LUISQueryResult) _smartCache.matchExact("Go to the basement");
 
         assertEquals(generalizedInCache.getIntents()[0].getIntent(), "Go to");
         assertTrue(generalizedInCache.getEntities().length <= 0);

@@ -88,7 +88,8 @@ public class SnappyDB implements IPersistentDB {
         if (_size > 0) {
             if (_size > n) {
                 keys = it.next(_size);
-            } else {
+            }
+            else {
                 keys = it.next(n);
             }
         }

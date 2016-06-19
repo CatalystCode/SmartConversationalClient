@@ -12,13 +12,13 @@ import com.microsoft.pct.smartconversationalclient.common.MockQueryResult;
 public class SnappyDBUnitTest extends InstrumentationTestCase {
 
     private SnappyDB _snappyDB;
-    private Context _mContext;
+    private Context _context;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        _mContext = getInstrumentation().getTargetContext();
-        _snappyDB = new SnappyDB(_mContext);
+        _context = getInstrumentation().getTargetContext();
+        _snappyDB = new SnappyDB(_context);
         _snappyDB.open();
     }
 

@@ -6,24 +6,19 @@ import android.test.InstrumentationTestCase;
 import com.microsoft.pct.smartconversationalclient.luis.LUISQueryResult;
 
 /**
- * Created by abornst on 6/16/2016.
+ * Created by abornst on 6/7/2016.
  */
-public class PersistentQueriesCacheUnitTest extends InstrumentationTestCase {
+public class PersistentQueriesCacheNoSyncUnitTest extends InstrumentationTestCase {
 
     private Context _context;
-    private PersistentQueriesCache __persistentCache;
+    private PersistentQueriesCacheNoSync __persistentCache;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
         _context = getInstrumentation().getTargetContext();
-        __persistentCache = new PersistentQueriesCache(_context, LUISQueryResult.class);
+        __persistentCache = new PersistentQueriesCacheNoSync(_context, LUISQueryResult.class);
         __persistentCache.init();
-    }
-
-    @Override
-    protected void tearDown() throws Exception{
-        __persistentCache.clear();
     }
 
     public void testPutAndMatch() throws Throwable

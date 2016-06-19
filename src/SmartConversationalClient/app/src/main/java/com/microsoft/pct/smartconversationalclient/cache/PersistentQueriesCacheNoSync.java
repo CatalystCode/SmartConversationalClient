@@ -1,38 +1,47 @@
 package com.microsoft.pct.smartconversationalclient.cache;
 
-import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
-
-import java.lang.reflect.Array;
-import java.util.Map;
+import android.content.Context;
 import android.support.v4.util.ArrayMap;
 
+import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
+import com.microsoft.pct.smartconversationalclient.persistentdb.IPersistentDB;
+import com.microsoft.pct.smartconversationalclient.persistentdb.SnappyDB;
+
+import java.util.Map;
+
 /**
- * Created by nadavbar on 5/29/16.
+ * Created by abornst on 6/7/2016.
  */
-public class QueriesCache implements IQueriesCache {
+
+public class PersistentQueriesCacheNoSync extends QueriesCache {
 
     private static final int DEFAULT_MAXIMUM_CACHE_SIZE = 1000;
 
     private int _maximumCacheSize;
 
-    private Map<String, IQueryResult> _exactQueriesCache;
+    private IPersistentDB _exactQueriesCache;
 
-    public QueriesCache() {
-        this(DEFAULT_MAXIMUM_CACHE_SIZE);
+    //The type of IQueryResult being stored in the cache needed for serialization purposes
+    private Class<? extends IQueryResult> _objectType;
+
+    public PersistentQueriesCacheNoSync(Context context, Class<? extends IQueryResult> objectType) {
+        this(DEFAULT_MAXIMUM_CACHE_SIZE, context, objectType);
     }
 
-    public QueriesCache(int maximumCacheSize) {
+    public PersistentQueriesCacheNoSync(int maximumCacheSize, Context context, Class<? extends IQueryResult> objectType) {
         if (maximumCacheSize <= 0) {
             throw new IllegalArgumentException("maximumCacheSize must have a positive value");
         }
 
         _maximumCacheSize = maximumCacheSize;
-        _exactQueriesCache = new ArrayMap<String, IQueryResult>();
+        _objectType = objectType;
+
+        _exactQueriesCache = new SnappyDB(context);
     }
 
     @Override
-    public void init() throws Exception {
-
+    public void init() throws Exception{
+        _exactQueriesCache.open();
     }
 
     @Override
@@ -41,21 +50,8 @@ public class QueriesCache implements IQueriesCache {
             throw new IllegalArgumentException("query parameter is null or an empty string");
         }
 
-        String transormedKey = preProcessKey(query);
-        return _exactQueriesCache.get(transormedKey);
-    }
-
-    @Override
-    public synchronized QueriesCacheMatch[] match(String query) throws Exception {
-        IQueryResult result = matchExact(query);
-
-        if (result == null) {
-            return null;
-        }
-
-        return new QueriesCacheMatch[] {
-            new QueriesCacheMatch(result, 1.00)
-        };
+        String transformedKey = preProcessKey(query);
+        return _exactQueriesCache.getObject(transformedKey,_objectType);
     }
 
     @Override
@@ -70,20 +66,19 @@ public class QueriesCache implements IQueriesCache {
     }
 
     @Override
-    public synchronized  void clearOldCacheItems(long cacheItemTTLMilliseconds) throws Exception {
-        // TODO: implement
-        throw new Exception("Not implemented");
-    }
-
-    @Override
     public synchronized long getSize() throws Exception {
-        return _exactQueriesCache.size();
+        return _exactQueriesCache.getSize();
     }
 
     @Override
     public synchronized Map<String, IQueryResult> getCacheItems() throws Exception {
         ArrayMap<String, IQueryResult> duplicate = new ArrayMap<String, IQueryResult>();
-        duplicate.putAll(_exactQueriesCache);
+        String[] keys =  _exactQueriesCache.getAllKeys();
+
+        for (String key : keys) {
+            duplicate.put(key,_exactQueriesCache.getObject(key,_objectType));
+        }
+
         return duplicate;
     }
 
@@ -91,4 +86,5 @@ public class QueriesCache implements IQueriesCache {
         String transformed = key.toLowerCase();
         return transformed;
     }
+
 }

@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 /**
  * Created by abornst on 6/16/2016.
  */
-public class SmartLuisQueriesCache implements IQueriesCache {
+public class SmartLuisQueriesCache extends QueriesCache {
 
     private static final int DEFAULT_MAXIMUM_CACHE_SIZE = 1000;
 
@@ -38,14 +38,20 @@ public class SmartLuisQueriesCache implements IQueriesCache {
         }
 
         _maximumCacheSize = maximumCacheSize;
-
         _exactQueriesCache = new SnappyDB(context);
+    }
+
+    @Override
+    public void init() throws Exception {
         _exactQueriesCache.open();
     }
 
     @Override
     public IQueryResult matchExact(String query) throws Exception {
-
+        String[] keys = _exactQueriesCache.getAllKeys();
+        if (keys.length <= 0){
+            throw new Exception("No Rules in Cache");
+        }
         LUISQueryResult luisQueryResult = new LUISQueryResult();
         ArrayList<LUISEntity> extractedEntites = new ArrayList<LUISEntity>();
         //iterate through the ruleKeys
@@ -77,12 +83,6 @@ public class SmartLuisQueriesCache implements IQueriesCache {
             }
         }
         return null;
-    }
-
-    @Override
-    public QueriesCacheMatch[] match(String query) throws Exception {
-        // TODO: implement based on confidences
-        throw new Exception("Not implemented");
     }
 
     @Override
