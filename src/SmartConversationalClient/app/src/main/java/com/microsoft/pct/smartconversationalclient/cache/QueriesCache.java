@@ -1,6 +1,11 @@
 package com.microsoft.pct.smartconversationalclient.cache;
 
+import com.microsoft.pct.smartconversationalclient.cache.keymatch.CacheKeyMatchResult;
+import com.microsoft.pct.smartconversationalclient.cache.keymatch.CacheQueryResult;
+import com.microsoft.pct.smartconversationalclient.cache.keymatch.ICacheKeyMatcher;
+import com.microsoft.pct.smartconversationalclient.cache.keymatch.RegexCacheKeyMatcher;
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
+import com.microsoft.pct.smartconversationalclient.luis.LUISQueryResult;
 
 import java.lang.reflect.Array;
 import java.util.Map;
@@ -14,8 +19,8 @@ public class QueriesCache implements IQueriesCache {
     private static final int DEFAULT_MAXIMUM_CACHE_SIZE = 1000;
 
     private int _maximumCacheSize;
-
     private Map<String, IQueryResult> _exactQueriesCache;
+    private ICacheKeyMatcher _cacheKeyMatcher;
 
     public QueriesCache() {
         this(DEFAULT_MAXIMUM_CACHE_SIZE);
@@ -28,6 +33,7 @@ public class QueriesCache implements IQueriesCache {
 
         _maximumCacheSize = maximumCacheSize;
         _exactQueriesCache = new ArrayMap<String, IQueryResult>();
+        _cacheKeyMatcher = new RegexCacheKeyMatcher();
     }
 
     @Override
@@ -41,25 +47,39 @@ public class QueriesCache implements IQueriesCache {
             throw new IllegalArgumentException("query parameter is null or an empty string");
         }
 
-        String transormedKey = preProcessKey(query);
-        return _exactQueriesCache.get(transormedKey);
+        String transformedKey = preProcessKey(query);
+        return _exactQueriesCache.get(transformedKey);
     }
 
     @Override
     public synchronized QueriesCacheMatch[] match(String query) throws Exception {
         IQueryResult result = matchExact(query);
 
-        if (result == null) {
+        if (result != null) {
+            return new QueriesCacheMatch[] {
+                new QueriesCacheMatch(result, 1.00)
+            };
+        }
+
+        CacheKeyMatchResult[] results = _cacheKeyMatcher.match(query);
+
+        if (results == null || results.length ==0) {
             return null;
         }
 
-        return new QueriesCacheMatch[] {
-            new QueriesCacheMatch(result, 1.00)
-        };
+        QueriesCacheMatch[] matches = new QueriesCacheMatch[results.length];
+
+        for (int i = 0; i < matches.length; i++) {
+            IQueryResult cachedResult = matchExact(results[i].getKeyMatch());
+            matches[i] = new QueriesCacheMatch(
+                    new CacheQueryResult(query, results[i].getEntities(), cachedResult.getQueryIntents()), results[i].getMatchConfidence());
+        }
+
+        return matches;
     }
 
     @Override
-    public synchronized void put (String query, IQueryResult queryResult) throws Exception {
+    public synchronized void put(String query, IQueryResult queryResult) throws Exception {
         if (getSize() >= _maximumCacheSize) {
             // TODO: Reduce the getSize of the cache
             throw new IllegalStateException("Cache reached its maximal getSize");
@@ -67,6 +87,7 @@ public class QueriesCache implements IQueriesCache {
 
         String transformedKey = preProcessKey(query);
         _exactQueriesCache.put(transformedKey, queryResult);
+        _cacheKeyMatcher.addKeyMatchData(queryResult);
     }
 
     @Override

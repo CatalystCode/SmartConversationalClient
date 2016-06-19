@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity  {
                     }
                 }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, result);
 
-                String intent = result.getIntents()[0].getIntent();
+                String intent = result.getQueryIntents()[0];
                 control.setText("Intent: " + intent);
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, query);

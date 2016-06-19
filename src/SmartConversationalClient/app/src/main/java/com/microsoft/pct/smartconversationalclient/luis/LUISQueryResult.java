@@ -19,6 +19,16 @@ public class LUISQueryResult implements IQueryResult {
         return _entities;
     }
 
+    public String[] getQueryEntities() {
+        String[] entities = new String[_entities.length];
+
+        for (int i=0; i < entities.length; i++) {
+            entities[i] = _entities[i].getEntity();
+        }
+
+        return entities;
+    }
+
     @com.fasterxml.jackson.annotation.JsonProperty("query")
     private String _query;
 
@@ -51,6 +61,16 @@ public class LUISQueryResult implements IQueryResult {
 
     public LUISIntent[] getIntents() {
         return _intents;
+    }
+
+    public String[] getQueryIntents() {
+        String[] intents = new String[_intents.length];
+
+        for (int i=0; i < intents.length; i++) {
+            intents[i] = _intents[i].getIntent();
+        }
+
+        return intents;
     }
 
 }
