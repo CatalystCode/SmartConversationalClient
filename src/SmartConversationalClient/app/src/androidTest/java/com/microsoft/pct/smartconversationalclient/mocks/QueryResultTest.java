@@ -1,20 +1,22 @@
-package com.microsoft.pct.smartconversationalclient.common;
+package com.microsoft.pct.smartconversationalclient.mocks;
+
+import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 
 /**
  * Created by abornst on 6/1/2016.
  */
 
 /*Implementation of IQueryResult for testing purposes */
-public class MockQueryResult implements IQueryResult {
+public class QueryResultTest implements IQueryResult {
 
     @com.fasterxml.jackson.annotation.JsonProperty("query")
     private String _query;
 
-    public MockQueryResult() {
+    public QueryResultTest() {
         _query = "some query";
     }
 
-    public MockQueryResult(String _query) {
+    public QueryResultTest(String _query) {
         this._query = _query;
     }
 
@@ -24,12 +26,12 @@ public class MockQueryResult implements IQueryResult {
     }
 
     @Override
-    public boolean equals(Object object){
-        MockQueryResult myObject = (MockQueryResult) object;
+    public boolean equals (Object object){
+        QueryResultTest myObject = (QueryResultTest) object;
         if (myObject.getQuery().equals(_query)){
             return true;
         }
-
         return false;
+
     }
 }

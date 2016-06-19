@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.v4.util.ArrayMap;
 
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
+import com.microsoft.pct.smartconversationalclient.luis.LUISQueryResult;
+import com.microsoft.pct.smartconversationalclient.persistentdb.DBValue;
 import com.microsoft.pct.smartconversationalclient.persistentdb.IPersistentDB;
 import com.microsoft.pct.smartconversationalclient.persistentdb.SnappyDB;
 
@@ -21,21 +23,17 @@ public class PersistentQueriesCacheNoSync extends QueriesCache {
 
     private IPersistentDB _exactQueriesCache;
 
-    //The type of IQueryResult being stored in the cache needed for serialization purposes
-    private Class<? extends IQueryResult> _objectType;
 
-    public PersistentQueriesCacheNoSync(Context context, Class<? extends IQueryResult> objectType) {
-        this(DEFAULT_MAXIMUM_CACHE_SIZE, context, objectType);
+    public PersistentQueriesCacheNoSync(Context context) {
+        this(DEFAULT_MAXIMUM_CACHE_SIZE, context);
     }
 
-    public PersistentQueriesCacheNoSync(int maximumCacheSize, Context context, Class<? extends IQueryResult> objectType) {
+    public PersistentQueriesCacheNoSync(int maximumCacheSize, Context context) {
         if (maximumCacheSize <= 0) {
             throw new IllegalArgumentException("maximumCacheSize must have a positive value");
         }
 
         _maximumCacheSize = maximumCacheSize;
-        _objectType = objectType;
-
         _exactQueriesCache = new SnappyDB(context);
     }
 
@@ -51,7 +49,7 @@ public class PersistentQueriesCacheNoSync extends QueriesCache {
         }
 
         String transformedKey = preProcessKey(query);
-        return _exactQueriesCache.getObject(transformedKey,_objectType);
+        return (LUISQueryResult) _exactQueriesCache.getValue(transformedKey).getObject();
     }
 
     @Override
@@ -62,7 +60,8 @@ public class PersistentQueriesCacheNoSync extends QueriesCache {
         }
 
         String transformedKey = preProcessKey(query);
-        _exactQueriesCache.put(transformedKey, queryResult);
+
+        _exactQueriesCache.put(transformedKey, new DBValue(((LUISQueryResult) queryResult)));
     }
 
     @Override
@@ -76,7 +75,7 @@ public class PersistentQueriesCacheNoSync extends QueriesCache {
         String[] keys =  _exactQueriesCache.getAllKeys();
 
         for (String key : keys) {
-            duplicate.put(key,_exactQueriesCache.getObject(key,_objectType));
+            duplicate.put(key, (IQueryResult) _exactQueriesCache.getValue(key).getObject());
         }
 
         return duplicate;

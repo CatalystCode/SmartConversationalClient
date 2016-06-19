@@ -17,7 +17,7 @@ public class PersistentQueriesCacheUnitTest extends InstrumentationTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         _context = getInstrumentation().getTargetContext();
-        _persistentCache = new PersistentQueriesCache(_context, LUISQueryResult.class);
+        _persistentCache = new PersistentQueriesCache(_context);
         _persistentCache.init();
     }
 

@@ -1,9 +1,5 @@
 package com.microsoft.pct.smartconversationalclient.persistentdb;
 
-import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
-
-import java.util.ArrayList;
-
 /**
  * Created by abornst on 5/29/2016.
  */
@@ -14,14 +10,14 @@ import java.util.ArrayList;
 public interface IPersistentDB
 {
     /*
-    Inserts object into persistent db
+    Inserts value into persistent db
     */
-    public void put(String key, IQueryResult value) throws Exception;
+    public void put(String key, DBValue value) throws Exception;
 
     /*
-    Retrieves object from persistent db
+    Retrieves value from persistent db
     */
-    public IQueryResult getObject(String key, Class<? extends IQueryResult> objectType) throws Exception;
+    public DBValue getValue(String key) throws Exception;
 
     /*
     Removes object from persistent db

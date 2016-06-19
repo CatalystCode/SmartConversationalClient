@@ -6,6 +6,7 @@ import android.support.v4.util.ArrayMap;
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 import com.microsoft.pct.smartconversationalclient.luis.LUISEntity;
 import com.microsoft.pct.smartconversationalclient.luis.LUISQueryResult;
+import com.microsoft.pct.smartconversationalclient.persistentdb.DBValue;
 import com.microsoft.pct.smartconversationalclient.persistentdb.IPersistentDB;
 import com.microsoft.pct.smartconversationalclient.persistentdb.SnappyDB;
 
@@ -77,7 +78,7 @@ public class SmartLuisQueriesCache extends QueriesCache {
 
                 //configure and return extracted query result
                 luisQueryResult.setQuery(query);
-                luisQueryResult.setIntents(((LUISQueryResult) _exactQueriesCache.getObject(rule,LUISQueryResult.class)).getIntents());
+                luisQueryResult.setIntents(((LUISQueryResult) _exactQueriesCache.getValue(rule).getObject()).getIntents());
                 luisQueryResult.setEntities(extractedEntites.toArray(new LUISEntity[extractedEntites.size()]));
                 return luisQueryResult;
             }
@@ -93,7 +94,7 @@ public class SmartLuisQueriesCache extends QueriesCache {
         }
 
         String ruleKey = luisQRToRuleKey((LUISQueryResult)queryResult);
-        _exactQueriesCache.put(ruleKey, queryResult);
+        _exactQueriesCache.put(ruleKey, new DBValue(queryResult));
     }
 
     @Override
@@ -113,7 +114,7 @@ public class SmartLuisQueriesCache extends QueriesCache {
         ArrayMap<String, IQueryResult> duplicate = new ArrayMap<String, IQueryResult>();
 
         for (String key : _exactQueriesCache.getAllKeys()) {
-            duplicate.put(key,_exactQueriesCache.getObject(key,LUISQueryResult.class));
+            duplicate.put(key, (IQueryResult) _exactQueriesCache.getValue(key).getObject());
         }
 
         return duplicate;

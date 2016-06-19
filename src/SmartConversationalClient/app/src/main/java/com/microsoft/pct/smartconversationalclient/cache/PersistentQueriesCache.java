@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.v4.util.ArrayMap;
 
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
+import com.microsoft.pct.smartconversationalclient.luis.LUISQueryResult;
+import com.microsoft.pct.smartconversationalclient.persistentdb.DBValue;
 import com.microsoft.pct.smartconversationalclient.persistentdb.SnappyDB;
 
 import java.util.Map;
@@ -16,25 +18,20 @@ public class PersistentQueriesCache extends QueriesCache {
     private static final int DEFAULT_MAXIMUM_CACHE_SIZE = 1000;
 
     private int _maximumCacheSize;
-
     private Map<String, IQueryResult> _exactQueriesCache;
-
     private SnappyDB _exactQueriesDB;
 
-    //The type of IQueryResult being stored in the cache needed for serialization purposes
-    private Class<? extends IQueryResult> _objectType;
 
-    public PersistentQueriesCache(Context context, Class<? extends IQueryResult> objectType) {
-        this(DEFAULT_MAXIMUM_CACHE_SIZE, context, objectType);
+    public PersistentQueriesCache(Context context) {
+        this(context, DEFAULT_MAXIMUM_CACHE_SIZE);
     }
 
-    public PersistentQueriesCache(int maximumCacheSize, Context context, Class<? extends IQueryResult> objectType) {
+    public PersistentQueriesCache(Context context, int maximumCacheSize) {
         if (maximumCacheSize <= 0) {
             throw new IllegalArgumentException("maximumCacheSize must have a positive value");
         }
 
         _maximumCacheSize = maximumCacheSize;
-        _objectType = objectType;
         _exactQueriesCache = new ArrayMap<String, IQueryResult>();
         _exactQueriesDB = new SnappyDB(context);
     }
@@ -58,7 +55,7 @@ public class PersistentQueriesCache extends QueriesCache {
 
         //if not in memory check disk
         if (result == null){
-            result = _exactQueriesDB.getObject(transformedKey, _objectType);
+            result = (LUISQueryResult) _exactQueriesDB.getValue(transformedKey).getObject();
         }
 
         return result;
@@ -71,7 +68,7 @@ public class PersistentQueriesCache extends QueriesCache {
             _exactQueriesCache.put(transformedKey, queryResult);
         }
 
-        _exactQueriesDB.put(transformedKey, queryResult);
+        _exactQueriesDB.put(transformedKey, new DBValue(((LUISQueryResult) queryResult)));
     }
 
     @Override
@@ -98,7 +95,7 @@ public class PersistentQueriesCache extends QueriesCache {
     private void loadDBIntoMemory() throws Exception {
         String[] keys =  _exactQueriesDB.getNKeys(_maximumCacheSize);
         for (String key : keys) {
-            _exactQueriesCache.put(key,_exactQueriesDB.getObject(key,_objectType));
+            _exactQueriesCache.put(key,(LUISQueryResult) _exactQueriesDB.getValue(key).getObject());
         }
     }
 

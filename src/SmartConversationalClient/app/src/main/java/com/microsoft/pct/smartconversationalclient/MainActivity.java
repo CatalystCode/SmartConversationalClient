@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity  {
         LUIS_SUBSCRIPTION_ID = this.getString(R.string.luisSubscriptionID);
 
         //Init persistent cache
-        _queriesCache = new PersistentQueriesCache(getApplicationContext(), LUISQueryResult.class);
+        _queriesCache = new PersistentQueriesCache(getApplicationContext());
         try {
             _queriesCache.init();
         }

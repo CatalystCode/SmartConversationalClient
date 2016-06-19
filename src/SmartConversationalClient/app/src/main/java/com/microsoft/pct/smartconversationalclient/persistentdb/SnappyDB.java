@@ -3,6 +3,7 @@ package com.microsoft.pct.smartconversationalclient.persistentdb;
 import android.content.Context;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 import com.snappydb.DB;
@@ -28,6 +29,8 @@ public class SnappyDB implements IPersistentDB {
     public SnappyDB (Context context) {
         _context = context;
         _mapper = new ObjectMapper();
+        _mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
     }
 
     @Override
@@ -37,15 +40,16 @@ public class SnappyDB implements IPersistentDB {
     }
 
     @Override
-    public synchronized void put(String key, IQueryResult value) throws JsonProcessingException, SnappydbException {
+    public synchronized void put(String key, DBValue value) throws JsonProcessingException, SnappydbException {
         _snappydb.put(key,_mapper.writeValueAsString(value));
         _size += 1;
     }
 
     @Override
-    public synchronized IQueryResult getObject(String key, Class<? extends IQueryResult> objectType) throws SnappydbException, IOException {
+    public synchronized DBValue getValue(String key) throws SnappydbException, IOException {
         String s =_snappydb.get(key);
-        return _mapper.readValue(_snappydb.get(key),objectType);
+        DBValue value = _mapper.readValue(s, DBValue.class);
+        return value;
     }
 
     @Override
@@ -88,8 +92,7 @@ public class SnappyDB implements IPersistentDB {
         if (_size > 0) {
             if (_size > n) {
                 keys = it.next(_size);
-            }
-            else {
+            } else {
                 keys = it.next(n);
             }
         }

@@ -17,7 +17,7 @@ public class PersistentQueriesCacheNoSyncUnitTest extends InstrumentationTestCas
     protected void setUp() throws Exception {
         super.setUp();
         _context = getInstrumentation().getTargetContext();
-        _persistentCache = new PersistentQueriesCacheNoSync(_context, LUISQueryResult.class);
+        _persistentCache = new PersistentQueriesCacheNoSync(_context);
         _persistentCache.init();
     }
 
