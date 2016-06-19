@@ -1,6 +1,5 @@
 package com.microsoft.pct.smartconversationalclient;
 
-import android.app.Application;
 import android.content.Intent;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -15,7 +14,6 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.*;
 import com.microsoft.pct.smartconversationalclient.cache.PersistentQueriesCache;
-import com.microsoft.pct.smartconversationalclient.cache.QueriesCache;
 import com.microsoft.pct.smartconversationalclient.cache.QueriesCacheMatch;
 import com.microsoft.pct.smartconversationalclient.luis.*;
 
@@ -38,15 +36,17 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        LUIS_APP_ID = this.getString(R.string.luisAppID);
+        LUIS_SUBSCRIPTION_ID = this.getString(R.string.luisSubscriptionID);
+
+        //Init persistent cache
+        _queriesCache = new PersistentQueriesCache(getApplicationContext());
         try {
-            _queriesCache = new PersistentQueriesCache(getApplicationContext(), LUISQueryResult.class);
+            _queriesCache.init();
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-
-        LUIS_APP_ID = this.getString(R.string.luisAppID);
-        LUIS_SUBSCRIPTION_ID = this.getString(R.string.luisSubscriptionID);
 
         //init speech to text google recognizer
         _recognitionListener = new RecognitionListener() {
@@ -113,7 +113,8 @@ public class MainActivity extends AppCompatActivity  {
                 QueriesCacheMatch[] matchResults = new QueriesCacheMatch[0];
                 try {
                     matchResults = _queriesCache.match(queryText);
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -127,9 +128,6 @@ public class MainActivity extends AppCompatActivity  {
                 LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(getApplicationContext()));
                 try {
                     LUISQueryResult result = client.queryLUIS(queryText);
-                    // add it to the cache:
-                    _queriesCache.put(query, result);
-                    // TODO:
                     return result;
                 }
                 catch (Throwable e) {
@@ -144,6 +142,22 @@ public class MainActivity extends AppCompatActivity  {
                 if (result == null) {
                     control.setText("Error occured during request to LUIS");
                 }
+
+                // Add to cache
+                new AsyncTask<LUISQueryResult,Void,Boolean>(){
+
+                    @Override
+                    protected Boolean doInBackground(LUISQueryResult... params) {
+                        try {
+                            LUISQueryResult result = params[0];
+                            _queriesCache.put(result.getQuery(), result);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return false;
+                        }
+                        return true;
+                    }
+                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, result);
 
                 String intent = result.getIntents()[0].getIntent();
                 control.setText("Intent: " + intent);

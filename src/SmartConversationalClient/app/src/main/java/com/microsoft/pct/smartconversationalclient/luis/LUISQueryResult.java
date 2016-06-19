@@ -12,7 +12,7 @@ public class LUISQueryResult implements IQueryResult {
     private LUISEntity[] _entities;
 
     public void setEntities(LUISEntity[] entities) {
-        this._entities = _entities;
+        _entities = entities;
     }
 
     public LUISEntity[] getEntities() {

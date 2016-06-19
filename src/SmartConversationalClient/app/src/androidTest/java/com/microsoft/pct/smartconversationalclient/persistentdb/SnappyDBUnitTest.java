@@ -4,7 +4,7 @@ import android.content.Context;
 import android.test.InstrumentationTestCase;
 
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
-import com.microsoft.pct.smartconversationalclient.common.MockQueryResult;
+import com.microsoft.pct.smartconversationalclient.mocks.MockQueryResult;
 
 /**
  * Created by abornst on 6/1/2016.
@@ -12,13 +12,13 @@ import com.microsoft.pct.smartconversationalclient.common.MockQueryResult;
 public class SnappyDBUnitTest extends InstrumentationTestCase {
 
     private SnappyDB _snappyDB;
-    private Context _mContext;
+    private Context _context;
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        _mContext = getInstrumentation().getTargetContext();
-        _snappyDB = new SnappyDB(_mContext);
+        _context = getInstrumentation().getTargetContext();
+        _snappyDB = new SnappyDB(_context);
         _snappyDB.open();
     }
 
@@ -29,22 +29,22 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
 
     public void testClear() throws Exception{
         //ensure that there are items in the db
-        _snappyDB.put("Key",new MockQueryResult() );
-        _snappyDB.put("Key1",new MockQueryResult());
-        _snappyDB.put("Key2",new MockQueryResult());
+        _snappyDB.put("Key", new DBValue(new MockQueryResult()));
+        _snappyDB.put("Key1", new DBValue(new MockQueryResult()));
+        _snappyDB.put("Key2", new DBValue(new MockQueryResult()));
 
         //clear
         _snappyDB.clear();
 
         //confirm
-        assertTrue(_snappyDB.getSize()==0);
+        assertTrue(_snappyDB.getSize() == 0);
     }
 
     public void testSize() throws  Exception{
         //ensure that there are items in the db
-        _snappyDB.put("Key",new MockQueryResult() );
-        _snappyDB.put("Key1",new MockQueryResult());
-        _snappyDB.put("Key2",new MockQueryResult());
+        _snappyDB.put("Key", new DBValue(new MockQueryResult()));
+        _snappyDB.put("Key1", new DBValue(new MockQueryResult()));
+        _snappyDB.put("Key2", new DBValue(new MockQueryResult()));
 
         assertTrue(_snappyDB.getSize() == 3);
     }
@@ -52,21 +52,23 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
     public void testPutAndGet() throws Exception {
         //put something in the db
         IQueryResult myIQueryResult = new MockQueryResult() ;
-        _snappyDB.put("Key",myIQueryResult);
+        _snappyDB.put("Key", new DBValue(myIQueryResult));
 
         //retrieve the object from the db
-        IQueryResult someResult = _snappyDB.getObject("Key",MockQueryResult.class);
+
+        IQueryResult someResult = (IQueryResult) _snappyDB.getValue("Key").getObject();
         assertTrue(myIQueryResult.equals(someResult));
+
     }
 
     public void testUpdate() throws Exception{
         //add object to db
-        _snappyDB.put("Key",new MockQueryResult());
-        IQueryResult oldResult = _snappyDB.getObject("Key",MockQueryResult.class);
+        _snappyDB.put("Key", new DBValue(new MockQueryResult()));
+        IQueryResult oldResult = (IQueryResult) _snappyDB.getValue("Key").getObject();
 
         //update object in db
-        _snappyDB.put("Key",new MockQueryResult("new query"));
-        IQueryResult newResult = _snappyDB.getObject("Key",MockQueryResult.class);
+        _snappyDB.put("Key", new DBValue(new MockQueryResult("new query")));
+        IQueryResult newResult = (IQueryResult) _snappyDB.getValue("Key").getObject();
 
         //confirm update
         assertFalse(oldResult.equals(newResult));
@@ -78,16 +80,15 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
         boolean keyNotFound = false;
 
         //add object to db
-        _snappyDB.put("Key",new MockQueryResult());
-        IQueryResult result = _snappyDB.getObject("Key",MockQueryResult.class);
-        assertNotNull(result);
+        _snappyDB.put("Key", new DBValue(new MockQueryResult()));
+        assertNotNull(_snappyDB.getValue("Key").getObject());
 
         //remove entry
         _snappyDB.remove("Key");
 
         //confirm remove
         try {
-            _snappyDB.getObject("Key",MockQueryResult.class);
+            _snappyDB.getValue("Key");
         }
         catch(Exception e){
             if (e.getMessage().contains("NotFound")) {
@@ -100,9 +101,9 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
 
     public void testOpen() throws Exception{
         //ensure that there are items in the db
-        _snappyDB.put("Key",new MockQueryResult() );
-        _snappyDB.put("Key1",new MockQueryResult());
-        _snappyDB.put("Key2",new MockQueryResult());
+        _snappyDB.put("Key", new DBValue(new MockQueryResult()));
+        _snappyDB.put("Key1", new DBValue(new MockQueryResult()));
+        _snappyDB.put("Key2", new DBValue(new MockQueryResult()));
 
         //measure and close
         int dbSizeBeforeClose = _snappyDB.getSize();
@@ -117,9 +118,9 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
 
     public  void testGetAllKeys() throws Exception{
         //ensure that there are items in the db
-        _snappyDB.put("Key",new MockQueryResult() );
-        _snappyDB.put("Key1",new MockQueryResult());
-        _snappyDB.put("Key2",new MockQueryResult());
+        _snappyDB.put("Key", new DBValue(new MockQueryResult()));
+        _snappyDB.put("Key1", new DBValue(new MockQueryResult()));
+        _snappyDB.put("Key2", new DBValue(new MockQueryResult()));
 
         //get all keys
         String[] keys = _snappyDB.getAllKeys();
@@ -131,7 +132,6 @@ public class SnappyDBUnitTest extends InstrumentationTestCase {
         assertTrue(keys[0].equals("Key"));
         assertTrue(keys[1].equals("Key1"));
         assertTrue(keys[2].equals("Key2"));
-
     }
 
 }

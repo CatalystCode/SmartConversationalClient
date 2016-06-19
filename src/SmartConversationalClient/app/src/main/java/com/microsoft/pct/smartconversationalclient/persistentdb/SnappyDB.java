@@ -3,6 +3,7 @@ package com.microsoft.pct.smartconversationalclient.persistentdb;
 import android.content.Context;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 import com.snappydb.DB;
@@ -28,6 +29,8 @@ public class SnappyDB implements IPersistentDB {
     public SnappyDB (Context context) {
         _context = context;
         _mapper = new ObjectMapper();
+        _mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
     }
 
     @Override
@@ -37,15 +40,14 @@ public class SnappyDB implements IPersistentDB {
     }
 
     @Override
-    public synchronized void put(String key, IQueryResult value) throws JsonProcessingException, SnappydbException {
+    public synchronized void put(String key, DBValue value) throws JsonProcessingException, SnappydbException {
         _snappydb.put(key,_mapper.writeValueAsString(value));
         _size += 1;
     }
 
     @Override
-    public synchronized IQueryResult getObject(String key, Class<? extends IQueryResult> objectType) throws SnappydbException, IOException {
-        String s =_snappydb.get(key);
-        return _mapper.readValue(_snappydb.get(key),objectType);
+    public synchronized DBValue getValue(String key) throws SnappydbException, IOException {
+        return _mapper.readValue(_snappydb.get(key), DBValue.class);
     }
 
     @Override
@@ -77,6 +79,22 @@ public class SnappyDB implements IPersistentDB {
     public String[] getAllKeys() throws Exception {
         KeyIterator it = _snappydb.allKeysIterator();
         String[] keys = it.next(_size);
+        it.close();
+        return keys;
+    }
+
+    public String[] getNKeys(int n) throws Exception {
+        KeyIterator it = _snappydb.allKeysIterator();
+        String[] keys = {};
+
+        if (_size > 0) {
+            if (_size > n) {
+                keys = it.next(_size);
+            } else {
+                keys = it.next(n);
+            }
+        }
+
         it.close();
         return keys;
     }

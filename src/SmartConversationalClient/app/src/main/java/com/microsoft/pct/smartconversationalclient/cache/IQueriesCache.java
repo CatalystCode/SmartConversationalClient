@@ -11,6 +11,9 @@ import java.util.Map;
  */
 public interface IQueriesCache {
 
+    /*Runs all the required setup functions for using the db*/
+    void init() throws Exception;
+
     /*
     Performs an exact (but case insensitive) match for the query.
     Returns null if there is no match
