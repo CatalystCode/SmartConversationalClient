@@ -30,7 +30,7 @@ public class PersistentQueriesCacheUnitTest extends InstrumentationTestCase {
         LUISQueryResult mockResult = new LUISQueryResult();
         mockResult.setQuery("Go to the Kitchen");
 
-        _persistentCache.put(mockResult.getQuery(),mockResult);
+        _persistentCache.put(mockResult.getQuery(), mockResult);
         LUISQueryResult cached = (LUISQueryResult) _persistentCache.matchExact("Go to the Kitchen");
 
         assertEquals(mockResult.getQuery(),cached.getQuery());

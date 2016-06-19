@@ -47,9 +47,7 @@ public class SnappyDB implements IPersistentDB {
 
     @Override
     public synchronized DBValue getValue(String key) throws SnappydbException, IOException {
-        String s =_snappydb.get(key);
-        DBValue value = _mapper.readValue(s, DBValue.class);
-        return value;
+        return _mapper.readValue(_snappydb.get(key), DBValue.class);
     }
 
     @Override
