@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             protected void onPostExecute( final LUISQueryResult result ) {
                 TextView control = (TextView) findViewById(R.id.resultText);
-                if (result == null || result.getIntents().length <=  ) {
+                if (result == null || result.getIntents().length <= 0) {
                     control.setText("Error occured during request to LUIS");
                 }
 
