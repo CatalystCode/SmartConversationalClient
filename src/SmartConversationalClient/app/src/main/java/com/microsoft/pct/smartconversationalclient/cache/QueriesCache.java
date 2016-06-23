@@ -20,7 +20,7 @@ public class QueriesCache implements IQueriesCache {
 
     private int _maximumCacheSize;
     private Map<String, IQueryResult> _exactQueriesCache;
-    private ICacheKeyMatcher _cacheKeyMatcher;
+    protected ICacheKeyMatcher _cacheKeyMatcher;
 
     public QueriesCache() {
         this(DEFAULT_MAXIMUM_CACHE_SIZE);

@@ -7,6 +7,7 @@ import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 import com.microsoft.pct.smartconversationalclient.luis.LUISQueryResult;
 import com.microsoft.pct.smartconversationalclient.persistentdb.DBValue;
 import com.microsoft.pct.smartconversationalclient.persistentdb.SnappyDB;
+import com.snappydb.SnappydbException;
 
 import java.util.Map;
 
@@ -40,7 +41,11 @@ public class PersistentQueriesCache extends QueriesCache {
     @Override
     public void init() throws Exception {
         _exactQueriesDB.open();
-        loadDBIntoMemory();
+        loadCacheFromDB();
+
+        for (IQueryResult query : _exactQueriesCache.values()) {
+            _cacheKeyMatcher.addKeyMatchData(query);
+        }
     }
 
     @Override
@@ -55,7 +60,13 @@ public class PersistentQueriesCache extends QueriesCache {
 
         //if not in memory check disk
         if (result == null){
-            result = (LUISQueryResult) _exactQueriesDB.getValue(transformedKey).getObject();
+            DBValue value = _exactQueriesDB.getValue(transformedKey);
+
+            if (value == null) {
+                return null;
+            }
+
+            result = (LUISQueryResult)value.getObject();
         }
 
         return result;
@@ -92,7 +103,7 @@ public class PersistentQueriesCache extends QueriesCache {
     Loads first maximumCacheSize keys and values from disk into memory
     ToDo Provide Weighted Index for retrieving values
     */
-    private void loadDBIntoMemory() throws Exception {
+    private void loadCacheFromDB() throws Exception {
         String[] keys =  _exactQueriesDB.getNKeys(_maximumCacheSize);
         for (String key : keys) {
             _exactQueriesCache.put(key,(LUISQueryResult) _exactQueriesDB.getValue(key).getObject());

@@ -54,10 +54,10 @@ public class RegexCacheKeyMatcher implements ICacheKeyMatcher {
 
             double matchConfidence = DEFAULT_CONFIDENCE;
 
-            String[] entities = new String[m.groupCount() - 1];
+            String[] entities = new String[m.groupCount()];
 
-            for (int groupIndex = 1; groupIndex <= m.groupCount(); groupIndex++) {
-                entities[groupIndex - 1] = m.group(groupIndex);
+            for (int groupIndex = 0; groupIndex < m.groupCount(); groupIndex++) {
+                entities[groupIndex] = m.group(groupIndex + 1);
             }
 
             matchResults.add(new CacheKeyMatchResult(entry.getKey(), entities, matchConfidence));
