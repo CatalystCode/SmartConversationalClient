@@ -142,33 +142,34 @@ public class MainActivity extends AppCompatActivity  {
                 if (result == null || result.getIntents().length <= 0) {
                     control.setText("Error occured during request to LUIS");
                 }
+                else {
+                    // Add to cache
+                    new AsyncTask<LUISQueryResult,Void,Boolean>(){
 
-                // Add to cache
-                new AsyncTask<LUISQueryResult,Void,Boolean>(){
-
-                    @Override
-                    protected Boolean doInBackground(LUISQueryResult... params) {
-                        try {
-                            LUISQueryResult result = params[0];
-                            _queriesCache.put(result.getQuery(), result);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return false;
+                        @Override
+                        protected Boolean doInBackground(LUISQueryResult... params) {
+                            try {
+                                LUISQueryResult result = params[0];
+                                _queriesCache.put(result.getQuery(), result);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                return false;
+                            }
+                            return true;
                         }
-                        return true;
-                    }
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, result);
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, result);
 
-                String intent = result.getIntents()[0].getIntent();
-                String displayText = "Intent: " + intent;
-                if (result.getEntities().length > 0){
-                    displayText += "\n\nEntities: ";
-                    for (LUISEntity entity : result.getEntities()){
-                        displayText += entity.getEntity() + ", ";
+                    String intent = result.getIntents()[0].getIntent();
+                    String displayText = "Intent: " + intent;
+                    if (result.getEntities().length > 0){
+                        displayText += "\n\nEntities: ";
+                        for (LUISEntity entity : result.getEntities()){
+                            displayText += entity.getEntity() + ", ";
+                        }
+                        displayText = displayText.substring(0, displayText.length()-2);
                     }
-                    displayText = displayText.substring(0, displayText.length()-2);
+                    control.setText(displayText);
                 }
-                control.setText(displayText);
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, query);
     }
