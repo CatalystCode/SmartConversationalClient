@@ -160,7 +160,15 @@ public class MainActivity extends AppCompatActivity  {
                 }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, result);
 
                 String intent = result.getIntents()[0].getIntent();
-                control.setText("Intent: " + intent);
+                String displayText = "Intent: " + intent;
+                if (result.getEntities().length > 0){
+                    displayText += "\n\nEntities: ";
+                    for (LUISEntity entity : result.getEntities()){
+                        displayText += entity.getEntity() + ", ";
+                    }
+                    displayText = displayText.substring(0, displayText.length()-2);
+                }
+                control.setText(displayText);
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, query);
     }
@@ -179,5 +187,16 @@ public class MainActivity extends AppCompatActivity  {
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
         _speechRecognizer.startListening(intent);
     }
-    
+
+    public void clear (View view) {
+        try {
+            _queriesCache.clear();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        TextView control = (TextView) findViewById(R.id.resultText);
+        control.setText("Cache Cleared!");
+    }
 }
