@@ -139,10 +139,10 @@ public class MainActivity extends AppCompatActivity  {
             @Override
             protected void onPostExecute( final LUISQueryResult result ) {
                 TextView control = (TextView) findViewById(R.id.resultText);
-                if (result == null) {
+                if (result == null || result.getIntents().length <= 0) {
                     control.setText("Error occured during request to LUIS");
+                    return;
                 }
-
                 // Add to cache
                 new AsyncTask<LUISQueryResult,Void,Boolean>(){
 
@@ -158,10 +158,19 @@ public class MainActivity extends AppCompatActivity  {
                         return true;
                     }
                 }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, result);
-
-                String intent = result.getQueryIntents()[0];
-                control.setText("Intent: " + intent);
+                
+                String intent = result.getIntents()[0].getIntent();
+                String displayText = "Intent: " + intent;
+                if (result.getEntities().length > 0){
+                    displayText += "\n\nEntities: ";
+                    for (LUISEntity entity : result.getEntities()){
+                        displayText += entity.getEntity() + ", ";
+                    }
+                    displayText = displayText.substring(0, displayText.length()-2);
+                }
+                control.setText(displayText);
             }
+
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, query);
     }
 
@@ -179,5 +188,16 @@ public class MainActivity extends AppCompatActivity  {
         intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS,5);
         _speechRecognizer.startListening(intent);
     }
-    
+
+    public void clear (View view) {
+        try {
+            _queriesCache.clear();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        TextView control = (TextView) findViewById(R.id.resultText);
+        control.setText("Cache Cleared!");
+    }
 }
