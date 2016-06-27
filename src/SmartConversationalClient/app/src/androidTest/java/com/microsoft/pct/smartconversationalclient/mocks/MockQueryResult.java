@@ -27,14 +27,14 @@ public class MockQueryResult implements IQueryResult {
         _intents = new String[] {"some intent"};
     }
 
-    public MockQueryResult(String _query) {
-        _query = _query;
+    public MockQueryResult(String query) {
+        _query = query;
         _entities = new String[] {"some entity"};
         _intents = new String[] {"some intent"};
     }
 
-    public MockQueryResult(String _query, String[] entities, String[] intents) {
-        _query = _query;
+    public MockQueryResult(String query, String[] entities, String[] intents) {
+        _query = query;
         _entities = entities;
         _intents = intents;
     }

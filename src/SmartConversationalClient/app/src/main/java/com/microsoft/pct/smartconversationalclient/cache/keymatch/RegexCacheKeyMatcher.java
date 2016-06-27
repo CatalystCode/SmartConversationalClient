@@ -19,7 +19,7 @@ public class RegexCacheKeyMatcher implements ICacheKeyMatcher {
     //A list of possible entites (TBD read from LUIS model configuration or external source)
     //private static final String[] ENTITES_LIST = {"kitchen","bathroom","living room","bedroom","den"};
 
-    private static final String REGEX_TWO_WORDS = "(\\w+\\s{1}\\w+)";
+    private static final String REGEX_TWO_WORDS = "(\\w+(?:\\s{1}\\w+){0,2})";
     private static final double DEFAULT_CONFIDENCE = 0.9;
 
     private Map<String, Pattern> _keyPatternsMap;
@@ -36,7 +36,7 @@ public class RegexCacheKeyMatcher implements ICacheKeyMatcher {
             patternStr = patternStr.replace(ent, REGEX_TWO_WORDS);
         }
 
-        _keyPatternsMap.put(query.getQuery(), Pattern.compile(patternStr));
+        _keyPatternsMap.put(query.getQuery(), Pattern.compile(patternStr, Pattern.CASE_INSENSITIVE));
     }
 
     public CacheKeyMatchResult[] match(String strToMatch) {
