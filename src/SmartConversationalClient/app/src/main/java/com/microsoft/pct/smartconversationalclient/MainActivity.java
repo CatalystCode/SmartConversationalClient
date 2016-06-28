@@ -17,6 +17,7 @@ import com.android.volley.toolbox.*;
 import com.microsoft.pct.smartconversationalclient.cache.PersistentQueriesCache;
 import com.microsoft.pct.smartconversationalclient.cache.QueriesCacheMatch;
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
+import com.microsoft.pct.smartconversationalclient.controller.SmartConversationalController;
 import com.microsoft.pct.smartconversationalclient.luis.*;
 
 import java.util.ArrayList;
@@ -24,32 +25,18 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity  {
 
     static final String LOG_TAG = "MainActivity";
-    static final double QUERIES_CACHE_MATCH_CONFIDENCE_THRESHOLD = 0.9;
-
-    String LUIS_APP_ID;
-    String LUIS_SUBSCRIPTION_ID;
 
     private SpeechRecognizer _speechRecognizer;
     private RecognitionListener _recognitionListener;
-    private PersistentQueriesCache _queriesCache;
+    private SmartConversationalController _controller;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LUIS_APP_ID = this.getString(R.string.luisAppID);
-        LUIS_SUBSCRIPTION_ID = this.getString(R.string.luisSubscriptionID);
-
-        //Init persistent cache
-        _queriesCache = new PersistentQueriesCache(getApplicationContext());
-        try {
-            _queriesCache.init();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        //init smart conversational controller
+        _controller = new SmartConversationalController(this);
         //init speech to text google recognizer
         _recognitionListener = new RecognitionListener() {
             //speech recognizer offline partial global
@@ -106,70 +93,34 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void queryLuisAndShowResult(final String query) {
-        new AsyncTask<String, Void, Pair<Boolean, IQueryResult>>() {
+        new AsyncTask<String, Void, IQueryResult>() {
             @Override
             // The first item in the pair indicaes wheter  the result was obtained from the cache or not
-            protected Pair<Boolean, IQueryResult> doInBackground( final String ... params ) {
+            protected IQueryResult doInBackground( final String ... params ) {
                 String queryText = params[0];
 
-                // try to query the cache first:
-                QueriesCacheMatch[] matchResults = new QueriesCacheMatch[0];
                 try {
-                    matchResults = _queriesCache.match(queryText);
+                    return _controller.query(queryText);
                 }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                if (matchResults != null && matchResults.length > 0) {
-                    if (matchResults[0].getMatchConfidence() >= QUERIES_CACHE_MATCH_CONFIDENCE_THRESHOLD) {
-                        // TODO: Add support for general queries when available
-                        return new Pair<Boolean, IQueryResult>(true,(IQueryResult)matchResults[0].getQueryResult());
-                    }
-                }
-
-                LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(getApplicationContext()));
-                try {
-                    LUISQueryResult result = client.queryLUIS(queryText);
-                    return new Pair<Boolean,IQueryResult>(false, result);
-                }
-                catch (Throwable e) {
-                    Log.e(LOG_TAG, e.getLocalizedMessage());
+                catch (Throwable throwable) {
+                    throwable.printStackTrace();
                     return null;
                 }
             }
 
             @Override
-            protected void onPostExecute( final Pair<Boolean, IQueryResult> result ) {
+            protected void onPostExecute( final IQueryResult result ) {
                 TextView control = (TextView) findViewById(R.id.resultText);
-                if (result == null || result.second == null || result.second.getQueryIntents().length == 0) {
+                if (result == null || result.getQueryIntents().length == 0) {
                     control.setText("Error occured during request to LUIS");
                     return;
                 }
 
-                // if  the result didn't arrive from the cache but from LUIS
-                if (!result.first) {
-                    new AsyncTask<IQueryResult, Void, Boolean>() {
-
-                        @Override
-                        protected Boolean doInBackground(IQueryResult... params) {
-                            try {
-                                LUISQueryResult result = (LUISQueryResult) params[0];
-                                _queriesCache.put(result.getQuery(), result);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                return false;
-                            }
-                            return true;
-                            }
-                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, result.second);
-                }
-                
-                String intent = result.second.getQueryIntents()[0];
+                String intent = result.getQueryIntents()[0];
                 String displayText = "Intent: " + intent;
-                if (result.second.getQueryEntities().length > 0){
+                if (result.getQueryEntities().length > 0){
                     displayText += "\n\nEntities: ";
-                    for (String entity : result.second.getQueryEntities()){
+                    for (String entity : result.getQueryEntities()){
                         displayText += entity + ", ";
                     }
                     displayText = displayText.substring(0, displayText.length()-2);
@@ -197,7 +148,7 @@ public class MainActivity extends AppCompatActivity  {
 
     public void clear (View view) {
         try {
-            _queriesCache.clear();
+            _controller.clearCache();
         }
         catch (Exception e) {
             e.printStackTrace();
