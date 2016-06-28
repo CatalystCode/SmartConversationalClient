@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.util.Pair;
 import android.view.*;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.android.volley.toolbox.*;
 import com.microsoft.pct.smartconversationalclient.cache.PersistentQueriesCache;
 import com.microsoft.pct.smartconversationalclient.cache.QueriesCacheMatch;
+import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 import com.microsoft.pct.smartconversationalclient.luis.*;
 
 import java.util.ArrayList;
@@ -104,9 +106,10 @@ public class MainActivity extends AppCompatActivity  {
     }
 
     private void queryLuisAndShowResult(final String query) {
-        new AsyncTask<String, Void, LUISQueryResult>() {
+        new AsyncTask<String, Void, Pair<Boolean, IQueryResult>>() {
             @Override
-            protected LUISQueryResult doInBackground( final String ... params ) {
+            // The first item in the pair indicaes wheter  the result was obtained from the cache or not
+            protected Pair<Boolean, IQueryResult> doInBackground( final String ... params ) {
                 String queryText = params[0];
 
                 // try to query the cache first:
@@ -119,16 +122,16 @@ public class MainActivity extends AppCompatActivity  {
                 }
 
                 if (matchResults != null && matchResults.length > 0) {
-                    if (matchResults[0].getMatchConfidence() > QUERIES_CACHE_MATCH_CONFIDENCE_THRESHOLD) {
+                    if (matchResults[0].getMatchConfidence() >= QUERIES_CACHE_MATCH_CONFIDENCE_THRESHOLD) {
                         // TODO: Add support for general queries when available
-                        return (LUISQueryResult)matchResults[0].getQueryResult();
+                        return new Pair<Boolean, IQueryResult>(true,(IQueryResult)matchResults[0].getQueryResult());
                     }
                 }
 
                 LUISClient client = new LUISClient(LUIS_APP_ID, LUIS_SUBSCRIPTION_ID, Volley.newRequestQueue(getApplicationContext()));
                 try {
                     LUISQueryResult result = client.queryLUIS(queryText);
-                    return result;
+                    return new Pair<Boolean,IQueryResult>(false, result);
                 }
                 catch (Throwable e) {
                     Log.e(LOG_TAG, e.getLocalizedMessage());
@@ -137,34 +140,37 @@ public class MainActivity extends AppCompatActivity  {
             }
 
             @Override
-            protected void onPostExecute( final LUISQueryResult result ) {
+            protected void onPostExecute( final Pair<Boolean, IQueryResult> result ) {
                 TextView control = (TextView) findViewById(R.id.resultText);
-                if (result == null || result.getIntents().length <= 0) {
+                if (result == null || result.second == null || result.second.getQueryIntents().length == 0) {
                     control.setText("Error occured during request to LUIS");
                     return;
                 }
-                // Add to cache
-                new AsyncTask<LUISQueryResult,Void,Boolean>(){
 
-                    @Override
-                    protected Boolean doInBackground(LUISQueryResult... params) {
-                        try {
-                            LUISQueryResult result = params[0];
-                            _queriesCache.put(result.getQuery(), result);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            return false;
-                        }
-                        return true;
-                    }
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, result);
+                // if  the result didn't arrive from the cache but from LUIS
+                if (!result.first) {
+                    new AsyncTask<IQueryResult, Void, Boolean>() {
+
+                        @Override
+                        protected Boolean doInBackground(IQueryResult... params) {
+                            try {
+                                LUISQueryResult result = (LUISQueryResult) params[0];
+                                _queriesCache.put(result.getQuery(), result);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                return false;
+                            }
+                            return true;
+                            }
+                    }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, result.second);
+                }
                 
-                String intent = result.getIntents()[0].getIntent();
+                String intent = result.second.getQueryIntents()[0];
                 String displayText = "Intent: " + intent;
-                if (result.getEntities().length > 0){
+                if (result.second.getQueryEntities().length > 0){
                     displayText += "\n\nEntities: ";
-                    for (LUISEntity entity : result.getEntities()){
-                        displayText += entity.getEntity() + ", ";
+                    for (String entity : result.second.getQueryEntities()){
+                        displayText += entity + ", ";
                     }
                     displayText = displayText.substring(0, displayText.length()-2);
                 }

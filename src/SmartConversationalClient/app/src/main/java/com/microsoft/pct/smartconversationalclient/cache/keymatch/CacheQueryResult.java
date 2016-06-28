@@ -11,7 +11,7 @@ public class CacheQueryResult implements IQueryResult {
     private String[] _intents;
     private String[] _entities;
 
-    public CacheQueryResult(String query, String[] intents, String[] entities) {
+    public CacheQueryResult(String query, String[] entities, String[] intents) {
         _query = query;
         _intents = intents;
         _entities = entities;
