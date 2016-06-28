@@ -27,8 +27,11 @@ public class SmartControllerUnitTest extends InstrumentationTestCase {
     }
 
     public void testQuery() throws Throwable {
-        LUISQueryResult myResult = (LUISQueryResult) _controller.query("go to the kitchen?");
-        assertNotNull(myResult.toString());
+        LUISQueryResult myResult = (LUISQueryResult) _controller.query("go to the kitchen");
+        assertNotNull(myResult.getEntities());
+        myResult = (LUISQueryResult) _controller.query("go to the den");
+        assertNotNull(myResult.getEntities());
+
     }
 
     public void testClear() throws Exception {
