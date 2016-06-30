@@ -1,9 +1,7 @@
 package com.microsoft.pct.smartconversationalclient.cache;
 
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
-import com.snappydb.SnappydbException;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**

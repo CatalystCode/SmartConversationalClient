@@ -7,7 +7,6 @@ import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
 import com.microsoft.pct.smartconversationalclient.luis.LUISQueryResult;
 import com.microsoft.pct.smartconversationalclient.persistentdb.DBValue;
 import com.microsoft.pct.smartconversationalclient.persistentdb.SnappyDB;
-import com.snappydb.SnappydbException;
 
 import java.util.Map;
 

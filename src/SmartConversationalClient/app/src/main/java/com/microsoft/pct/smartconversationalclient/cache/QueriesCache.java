@@ -1,15 +1,14 @@
 package com.microsoft.pct.smartconversationalclient.cache;
 
+import android.support.v4.util.ArrayMap;
+
 import com.microsoft.pct.smartconversationalclient.cache.keymatch.CacheKeyMatchResult;
 import com.microsoft.pct.smartconversationalclient.cache.keymatch.CacheQueryResult;
 import com.microsoft.pct.smartconversationalclient.cache.keymatch.ICacheKeyMatcher;
 import com.microsoft.pct.smartconversationalclient.cache.keymatch.RegexCacheKeyMatcher;
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
-import com.microsoft.pct.smartconversationalclient.luis.LUISQueryResult;
 
-import java.lang.reflect.Array;
 import java.util.Map;
-import android.support.v4.util.ArrayMap;
 
 /**
  * Created by nadavbar on 5/29/16.

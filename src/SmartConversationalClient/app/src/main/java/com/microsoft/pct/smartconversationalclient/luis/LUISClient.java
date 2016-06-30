@@ -1,14 +1,17 @@
 package com.microsoft.pct.smartconversationalclient.luis;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
-import java.util.concurrent.*;
-
-import com.android.volley.*;
-import com.android.volley.toolbox.*;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by nadavbar on 5/23/16.

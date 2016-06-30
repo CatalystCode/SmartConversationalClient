@@ -3,15 +3,10 @@ package com.microsoft.pct.smartconversationalclient.cache.keymatch;
 import android.support.v4.util.ArrayMap;
 
 import com.microsoft.pct.smartconversationalclient.common.IQueryResult;
-import com.microsoft.pct.smartconversationalclient.luis.LUISEntity;
-import com.microsoft.pct.smartconversationalclient.luis.LUISIntent;
-import com.microsoft.pct.smartconversationalclient.luis.LUISQueryResult;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Dictionary;
 import java.util.Map;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

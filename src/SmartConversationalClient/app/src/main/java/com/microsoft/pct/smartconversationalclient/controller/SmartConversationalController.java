@@ -40,7 +40,6 @@ public class SmartConversationalController {
         catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     public IQueryResult query(final String query) throws Throwable {
