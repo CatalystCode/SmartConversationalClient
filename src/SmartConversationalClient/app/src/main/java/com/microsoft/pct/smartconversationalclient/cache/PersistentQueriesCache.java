@@ -79,6 +79,7 @@ public class PersistentQueriesCache extends QueriesCache {
         }
 
         _exactQueriesDB.put(transformedKey, new DBValue(((LUISQueryResult) queryResult)));
+        _cacheKeyMatcher.addKeyMatchData(queryResult);
     }
 
     @Override
