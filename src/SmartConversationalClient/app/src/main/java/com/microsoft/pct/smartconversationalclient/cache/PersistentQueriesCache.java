@@ -114,5 +114,7 @@ public class PersistentQueriesCache extends QueriesCache {
     public void clear() throws Exception {
         _exactQueriesCache.clear();
         _exactQueriesDB.clear();
+        _cacheKeyMatcher.clear();
     }
+
 }

@@ -71,4 +71,10 @@ public class RegexCacheKeyMatcher implements ICacheKeyMatcher {
 
         return resultsArr;
     }
+
+    @Override
+    public void clear() {
+        _keyPatternsMap.clear();
+    }
+
 }

@@ -16,4 +16,8 @@ public interface ICacheKeyMatcher {
     Add the data of the given key and its entities to the matcher
      */
     void addKeyMatchData(IQueryResult queryResult);
+
+    /*Clears all the keys from the matcher*/
+    void clear();
+
 }
