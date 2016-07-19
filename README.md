@@ -7,7 +7,7 @@ An end to end smart conversational client, that enables low latency voice intera
 * Configure a LUIS model from the [LUIS portal](https://luis.ai).
 * Clone or download the Smart Conversational Client repository [here](tbi).
 * Install Android Studio from [here](https://developer.android.com/studio/index.html).
-* Install at leats Android 4.2 on your device.
+* Install at least Android 4.2 on your device.
 
 ### Configuration
 
