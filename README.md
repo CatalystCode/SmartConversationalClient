@@ -1,4 +1,4 @@
-# SmartConversationalClient
+# Smart Conversational Client
 An end to end smart conversational client, that enables low latency voice interaction, using Microsoft’s intent recognition technologies and a local smart cache.
 
 ## How to Run the Sample and Integrate the Code into a Project
