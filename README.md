@@ -30,9 +30,9 @@ To integrate the SmartConverstaional API into your own JAVA application use the 
 //Import smart conversational client controller
 import com.microsoft.pct.smartconversationalclient.controller;
 
-/*
+---
 The following code should be part of a Java function
-*/
+---
 
 //Initialize controller
 SmartConversationalController controller = new SmartConversationalController(Context.getApplicationContext());
